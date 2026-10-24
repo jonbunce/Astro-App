@@ -32,6 +32,7 @@ class WAS_Rest {
         add_filter( 'rest_post_dispatch',     array( __CLASS__, 'no_store' ), 10, 3 );
         add_filter( 'rest_pre_serve_request', array( __CLASS__, 'serve_photo' ), 10, 4 );
         add_filter( 'was_user_team_ids',      array( __CLASS__, 'user_team_ids' ), 10, 2 );
+        add_action( 'deleted_user',           array( 'WAS_Inbox', 'delete_for_user' ) );
     }
 
     public static function register_routes() {

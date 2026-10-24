@@ -58,6 +58,12 @@ class WAS_Inbox {
         return $ok ? (int) $wpdb->insert_id : 0;
     }
 
+    /** When a WordPress account is deleted, its inbox goes with it (hooked on deleted_user). */
+    public static function delete_for_user( $user_id ) {
+        global $wpdb;
+        $wpdb->delete( self::table(), array( 'user_id' => (int) $user_id ), array( '%d' ) );
+    }
+
     // ── Reading (the member's own rows only) ───────────────────────────────────
 
     /** A page of a member's inbox, newest first. */
