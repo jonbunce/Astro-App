@@ -11,7 +11,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'WAS_VERSION',    '2.28.0' );
-define( 'WAS_DB_VERSION', '2.14.0' );
+define( 'WAS_DB_VERSION', '2.15.0' );
 
 // Age in whole years from a YYYY-MM-DD date of birth, or '' if not set/invalid.
 function was_age( $dob ) {

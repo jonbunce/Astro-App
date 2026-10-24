@@ -73,7 +73,7 @@ class WAS_Registration {
 
             case 'form':
                 $player = WAS_Database::get_player_by_token( $token );
-                if ( $player && $player->registration_status === 'pending' ) {
+                if ( $player && $player->registration_status === 'pending' && self::is_own_registration( $player ) ) {
                     self::render_form( $player );
                 } else {
                     self::render_error( 'This registration link is invalid or has already been used. Please start again.' );
@@ -203,11 +203,13 @@ class WAS_Registration {
         $return_page   = esc_url_raw( $_POST['current_url'] ?? home_url( '/' ) );
         $return_page   = remove_query_arg( array( 'was_stage', 'was_token', 'was_error', 'was_gc_return', 'redirect_flow_id' ), $return_page );
 
-        // Store session data server-side (transient keyed to session_token)
+        // Store session data server-side (transient keyed to session_token). user_id records
+        // who started it, so the pending registration created on return belongs to them.
         set_transient( 'was_gc_' . $session_token, array(
             'team_id' => $team_id,
             'email'   => $email,
             'name'    => $name,
+            'user_id' => get_current_user_id(),
             'time'    => time(),
         ), HOUR_IN_SECONDS );
 
@@ -270,7 +272,7 @@ class WAS_Registration {
         // Subscription is created at form submission time once we know the
         // guardian and can detect siblings and apply the correct rate.
         // For now just create the pending player record with the mandate.
-        $token = self::create_pending_player( $team_id, 'signed', $mandate_id, $customer_id, 0, '' );
+        $token = self::create_pending_player( $team_id, 'signed', $mandate_id, $customer_id, 0, '', (int) ( $session['user_id'] ?? 0 ) );
 
         // Clean up session
         delete_transient( 'was_gc_' . $session_token );
@@ -406,33 +408,11 @@ class WAS_Registration {
         $token  = sanitize_text_field( $_POST['was_token'] ?? '' );
         $player = WAS_Database::get_player_by_token( $token );
 
-        // Fallback: if token lookup fails, try to recover from logged-in user's most recent pending player
-        if ( ! $player && is_user_logged_in() ) {
-            $guardian = WAS_Accounts::current_guardian();
-            if ( $guardian ) {
-                global $wpdb;
-                $player = $wpdb->get_row( $wpdb->prepare(
-                    "SELECT * FROM {$wpdb->prefix}was_players
-                     WHERE primary_guardian_id = %d
-                       AND registration_status = 'pending'
-                       AND season = %s
-                     ORDER BY id DESC LIMIT 1",
-                    $guardian->id, was_season()
-                ) );
-                // Also try without guardian link (train-only before guardian is set)
-                if ( ! $player ) {
-                    $user    = get_userdata( get_current_user_id() );
-                    $player = $wpdb->get_row( $wpdb->prepare(
-                        "SELECT p.* FROM {$wpdb->prefix}was_players p
-                         LEFT JOIN {$wpdb->prefix}was_guardians g ON g.id = p.primary_guardian_id
-                         WHERE ( g.wp_user_id = %d OR p.primary_guardian_id = 0 )
-                           AND p.registration_status = 'pending'
-                           AND p.season = %s
-                         ORDER BY p.id DESC LIMIT 1",
-                        get_current_user_id(), was_season()
-                    ) );
-                }
-            }
+        // The token must match a pending registration that this account started. There is
+        // deliberately no "most recent pending registration" fallback: guessing could hand
+        // one family another family's pending row and Direct Debit mandate.
+        if ( $player && ( $player->registration_status !== 'pending' || ! self::is_own_registration( $player ) ) ) {
+            $player = null;
         }
 
         if ( ! $player ) {
@@ -766,10 +746,13 @@ class WAS_Registration {
      * Insert a minimal "pending" player row to anchor the GC mandate / token.
      * Completed on form submit.
      */
-    private static function create_pending_player( $team_id, $type, $mandate_id, $customer_id, $amount_pence = 0, $sub_id = '' ) {
+    private static function create_pending_player( $team_id, $type, $mandate_id, $customer_id, $amount_pence = 0, $sub_id = '', $owner_id = 0 ) {
         global $wpdb;
 
         $token = wp_generate_password( 32, false );
+
+        // The account that started this registration — the only one allowed to complete it.
+        $owner_id = $owner_id ? (int) $owner_id : get_current_user_id();
 
         $wpdb->insert(
             "{$wpdb->prefix}was_players",
@@ -785,16 +768,40 @@ class WAS_Registration {
                 'gc_subscription_id'  => $sub_id,
                 'gc_customer_id'      => $customer_id,
                 'registration_token'  => $token,
+                'created_by_user'     => $owner_id,
             ),
-            array( '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
+            array( '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' )
         );
 
         // Store token in user meta as backup in case of page cache issues
-        if ( is_user_logged_in() ) {
-            update_user_meta( get_current_user_id(), 'was_pending_token', $token );
+        if ( $owner_id ) {
+            update_user_meta( $owner_id, 'was_pending_token', $token );
         }
 
         return $token;
+    }
+
+    /**
+     * Does this pending registration belong to the signed-in account? Yes if the account
+     * started it, or it is already linked to the account's own family record. Rows from
+     * before created_by_user existed fall back to the account's own resume breadcrumb.
+     */
+    private static function is_own_registration( $player ) {
+        $user_id = get_current_user_id();
+        if ( ! $player || ! $user_id ) return false;
+
+        if ( ! empty( $player->created_by_user ) ) {
+            if ( (int) $player->created_by_user === $user_id ) return true;
+        } elseif ( $player->registration_token !== '' ) {
+            $breadcrumb = (string) get_user_meta( $user_id, 'was_pending_token', true );
+            if ( $breadcrumb !== '' && hash_equals( $breadcrumb, (string) $player->registration_token ) ) return true;
+        }
+
+        if ( ! empty( $player->primary_guardian_id ) ) {
+            $guardian = WAS_Accounts::current_guardian();
+            if ( $guardian && (int) $guardian->id === (int) $player->primary_guardian_id ) return true;
+        }
+        return false;
     }
 
     private static function stage_url( $stage, $token = '' ) {

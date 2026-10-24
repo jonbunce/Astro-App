@@ -63,6 +63,7 @@ class WAS_Database {
             gc_subscription_id varchar(100) NOT NULL DEFAULT '',
             gc_customer_id varchar(100) NOT NULL DEFAULT '',
             registration_token varchar(64) NOT NULL DEFAULT '',
+            created_by_user bigint(20) unsigned NOT NULL DEFAULT 0,
             notes text NOT NULL DEFAULT '',
             created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -394,6 +395,12 @@ class WAS_Database {
 
         // v2.14.0: scheduled club messages + send-as-club. Rows logged before this were sent immediately.
         $wpdb->query( "UPDATE {$wpdb->prefix}was_messages SET sent_at = created_at WHERE sent_at IS NULL AND status = 'sent'" );
+
+        // v2.15.0: the account that started a pending registration — only it may complete it
+        $cbcols = $wpdb->get_col( "SHOW COLUMNS FROM {$wpdb->prefix}was_players" );
+        if ( ! in_array( 'created_by_user', $cbcols, true ) ) {
+            $wpdb->query( "ALTER TABLE {$wpdb->prefix}was_players ADD COLUMN created_by_user bigint(20) unsigned NOT NULL DEFAULT 0 AFTER registration_token" );
+        }
 
         update_option( 'was_db_version', WAS_DB_VERSION );
         // Clear any cached version mismatch
