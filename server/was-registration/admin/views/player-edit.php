@@ -38,24 +38,23 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['was_edit_nonce'] ) 
         }
     }
 
-    // Handle photo upload
+    // Handle photo upload (real JPG / PNG / WebP only, re-encoded so no EXIF/GPS data is kept)
     if ( ! empty( $_FILES['player_photo']['tmp_name'] ) ) {
         $file = $_FILES['player_photo'];
-        $allowed  = array( 'image/jpeg', 'image/png' );
-        if ( in_array( $file['type'], $allowed, true ) && $file['size'] <= 8 * 1024 * 1024 ) {
-            $ext  = $file['type'] === 'image/png' ? 'png' : 'jpg';
-            $fname = 'player-' . ( $is_new ? 'new-' . time() : $player_id ) . '-' . time() . '.' . $ext;
-            $dest = was_photo_dir() . $fname;
-            if ( move_uploaded_file( $file['tmp_name'], $dest ) ) {
+        if ( $file['size'] <= 8 * 1024 * 1024 ) {
+            $saved = was_save_uploaded_image( $file, was_photo_dir(), 'player-' . ( $is_new ? 'new-' . time() : $player_id ) . '-' . time() );
+            if ( is_wp_error( $saved ) ) {
+                $error = $saved->get_error_message();
+            } else {
                 // Remove old photo
                 if ( ! $is_new && ! empty( $existing_player->photo_path ) ) {
                     $old = was_photo_dir() . basename( $existing_player->photo_path );
                     if ( file_exists( $old ) ) @unlink( $old );
                 }
-                $data['photo_path'] = $fname;
+                $data['photo_path'] = $saved['file'];
             }
         } else {
-            $error = 'Photo must be JPG or PNG under 8MB.';
+            $error = 'Photo must be JPG, PNG or WebP under 8MB.';
         }
     }
 

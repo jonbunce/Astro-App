@@ -481,23 +481,18 @@ class WAS_Registration {
         $photo_filename = '';
         if ( ! empty( $_FILES['player_photo']['tmp_name'] ) ) {
             $file     = $_FILES['player_photo'];
-            $allowed  = array( 'image/jpeg', 'image/png' );
             $max_size = 8 * 1024 * 1024; // 8MB
 
-            if ( ! in_array( $file['type'], $allowed, true ) ) {
-                wp_send_json_error( array( 'message' => 'Photo must be a JPG or PNG file.' ) );
-            }
             if ( $file['size'] > $max_size ) {
                 wp_send_json_error( array( 'message' => 'Photo must be under 8MB.' ) );
             }
 
-            $ext            = $file['type'] === 'image/png' ? 'png' : 'jpg';
-            $photo_filename = 'player-' . $player->id . '-' . time() . '.' . $ext;
-            $dest           = was_photo_dir() . $photo_filename;
-
-            if ( ! move_uploaded_file( $file['tmp_name'], $dest ) ) {
-                wp_send_json_error( array( 'message' => 'Could not save photo. Please try again.' ) );
+            // Real JPG / PNG / WebP only, re-encoded so no EXIF/GPS data is kept.
+            $saved = was_save_uploaded_image( $file, was_photo_dir(), 'player-' . $player->id . '-' . time() );
+            if ( is_wp_error( $saved ) ) {
+                wp_send_json_error( array( 'message' => $saved->get_error_message() ) );
             }
+            $photo_filename = $saved['file'];
 
             // Delete old photo if exists
             if ( $player->photo_path && $player->photo_path !== $photo_filename ) {

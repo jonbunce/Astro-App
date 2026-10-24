@@ -74,6 +74,92 @@ function was_logo_url( $filename ) {
     return wp_upload_dir()['baseurl'] . '/was-team-logos/' . basename( $filename );
 }
 
+/**
+ * Validate an uploaded image and save a clean copy of it — used for every image upload
+ * (child photos, team logos, team news photos).
+ *
+ * Only real JPG, PNG and WebP images are accepted: checked by content as well as by
+ * name, so SVGs, scripts or anything renamed to .jpg are refused. The image is turned
+ * upright, scaled down to at most $max_dim pixels on its longest side and re-encoded,
+ * which drops EXIF data such as the GPS location of the phone that took it.
+ *
+ * Callers check the file size themselves (photos 8MB, logos 2MB).
+ *
+ * @param array  $file     One upload: name, tmp_name, error, size (as in $_FILES).
+ * @param string $dir      Folder to save into.
+ * @param string $basename File name to save as, without an extension.
+ * @param int    $max_dim  Longest side in pixels.
+ * @return array|WP_Error  array( 'file' => saved file name, 'path' => full path ), or an error.
+ */
+function was_save_uploaded_image( $file, $dir, $basename, $max_dim = 2000 ) {
+    $types = array(
+        'jpg|jpeg|jpe' => 'image/jpeg',
+        'png'          => 'image/png',
+        'webp'         => 'image/webp',
+    );
+    $exts = array( 'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp' );
+
+    if ( empty( $file['tmp_name'] ) || ! empty( $file['error'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
+        return new WP_Error( 'was_image_upload', 'The image did not upload properly. Please try again.' );
+    }
+
+    // Name and content must agree on one of the allowed types.
+    $check = wp_check_filetype_and_ext( $file['tmp_name'], (string) ( $file['name'] ?? '' ), $types );
+    $info  = @getimagesize( $file['tmp_name'] );
+    if ( empty( $check['type'] ) || ! $info || empty( $info['mime'] ) || ! isset( $exts[ $info['mime'] ] ) || $check['type'] !== $info['mime'] ) {
+        return new WP_Error( 'was_image_type', 'Please choose a JPG, PNG or WebP image.' );
+    }
+    // A small file can still unpack to an enormous bitmap — refuse before decoding it.
+    if ( (int) $info[0] * (int) $info[1] > 50000000 ) {
+        return new WP_Error( 'was_image_size', 'That image is too large. Please choose a smaller one.' );
+    }
+    $mime = $info['mime'];
+
+    // Prefer the GD editor: it never copies metadata into the new file. WordPress's Imagick
+    // editor deliberately keeps EXIF, so if GD can't handle the type, strip it ourselves.
+    $gd_only = function () { return array( 'WP_Image_Editor_GD' ); };
+    add_filter( 'wp_image_editors', $gd_only );
+    $editor = wp_get_image_editor( $file['tmp_name'], array( 'mime_type' => $mime ) );
+    remove_filter( 'wp_image_editors', $gd_only );
+    $via_gd = ! is_wp_error( $editor );
+    if ( ! $via_gd ) {
+        $editor = wp_get_image_editor( $file['tmp_name'], array( 'mime_type' => $mime ) );
+    }
+    $failed = new WP_Error( 'was_image_save', 'Sorry, that image could not be processed. Please try a different one.' );
+    if ( is_wp_error( $editor ) ) return $failed;
+
+    // Phones often store the picture sideways plus an EXIF "rotate me" flag, and that flag
+    // is about to be thrown away — so turn the pixels upright first.
+    $editor->maybe_exif_rotate();
+
+    $size = $editor->get_size();
+    if ( max( (int) $size['width'], (int) $size['height'] ) > $max_dim ) {
+        $resized = $editor->resize( $max_dim, $max_dim, false );
+        if ( is_wp_error( $resized ) ) return $failed;
+    }
+
+    $saved = $editor->save( trailingslashit( $dir ) . $basename . '.' . $exts[ $mime ], $mime );
+    if ( is_wp_error( $saved ) || empty( $saved['path'] ) || empty( $saved['file'] ) ) return $failed;
+
+    if ( ! $via_gd ) {
+        if ( ! class_exists( 'Imagick' ) ) {
+            @unlink( $saved['path'] );
+            return $failed;
+        }
+        try {
+            $im = new Imagick( $saved['path'] );
+            $im->stripImage();
+            $im->writeImage( $saved['path'] );
+            $im->clear();
+        } catch ( Exception $e ) {
+            @unlink( $saved['path'] );
+            return $failed;
+        }
+    }
+
+    return array( 'file' => $saved['file'], 'path' => $saved['path'] );
+}
+
 function was_season() {
     return get_option( 'was_current_season', '2024-25' );
 }

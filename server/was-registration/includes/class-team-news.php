@@ -499,7 +499,7 @@ class WAS_Team_News {
         require_once ABSPATH . 'wp-admin/includes/image.php';
         require_once ABSPATH . 'wp-admin/includes/media.php';
 
-        $allowed = array( 'jpg', 'jpeg', 'png', 'gif', 'webp' );
+        $allowed = array( 'jpg', 'jpeg', 'png', 'webp' );
         $created = array();
 
         foreach ( $names as $i => $name ) {
@@ -511,25 +511,34 @@ class WAS_Team_News {
             if ( (int) $_FILES['photos']['error'][ $i ] !== UPLOAD_ERR_OK ) {
                 $fail = 'One of the photos failed to upload. Please try again.';
             } elseif ( ! in_array( $ext, $allowed, true ) ) {
-                $fail = '"' . $name . '" is not a supported image type (jpg, png, gif or webp).';
+                $fail = '"' . $name . '" is not a supported image type (jpg, png or webp).';
             } elseif ( (int) $_FILES['photos']['size'][ $i ] > 8 * 1024 * 1024 ) {
                 $fail = '"' . $name . '" is too large. Each photo must be under 8MB.';
             } else {
-                $key = 'was_news_photo_' . $i;
-                $_FILES[ $key ] = array(
+                // Check it's a real image and save a re-encoded copy (no EXIF/GPS location
+                // data — these photos are published), then hand that copy to the media library.
+                $clean = was_save_uploaded_image( array(
                     'name'     => $_FILES['photos']['name'][ $i ],
-                    'type'     => $_FILES['photos']['type'][ $i ],
                     'tmp_name' => $_FILES['photos']['tmp_name'][ $i ],
                     'error'    => $_FILES['photos']['error'][ $i ],
                     'size'     => $_FILES['photos']['size'][ $i ],
-                );
-                $att = media_handle_upload( $key, $post_id );
-                unset( $_FILES[ $key ] );
-                if ( is_wp_error( $att ) ) {
-                    $fail = 'Could not save "' . $name . '": ' . $att->get_error_message();
+                ), get_temp_dir(), 'was-news-' . wp_generate_password( 12, false ) );
+
+                if ( is_wp_error( $clean ) ) {
+                    $fail = '"' . $name . '": ' . $clean->get_error_message();
                 } else {
-                    $created[] = (int) $att;
-                    continue;
+                    $base = sanitize_file_name( pathinfo( $name, PATHINFO_FILENAME ) );
+                    $att  = media_handle_sideload( array(
+                        'name'     => ( $base !== '' ? $base : 'photo' ) . '.' . pathinfo( $clean['file'], PATHINFO_EXTENSION ),
+                        'tmp_name' => $clean['path'],
+                    ), $post_id );
+                    if ( file_exists( $clean['path'] ) ) @unlink( $clean['path'] ); // only left behind if the sideload failed
+                    if ( is_wp_error( $att ) ) {
+                        $fail = 'Could not save "' . $name . '": ' . $att->get_error_message();
+                    } else {
+                        $created[] = (int) $att;
+                        continue;
+                    }
                 }
             }
 

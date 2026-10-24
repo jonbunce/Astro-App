@@ -24,20 +24,18 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['was_teams_nonce'] )
                 'active'         => 1,
                 'logo_path'      => '',
             );
-            // Handle logo upload
+            // Handle logo upload (real JPG / PNG / WebP only, re-encoded — no SVG in this public folder)
+            $logo_error = '';
             if ( ! empty( $_FILES['team_logo_new']['tmp_name'] ) ) {
-                $tmp  = $_FILES['team_logo_new']['tmp_name'];
-                $name_file = sanitize_file_name( $_FILES['team_logo_new']['name'] );
-                $ext  = strtolower( pathinfo( $name_file, PATHINFO_EXTENSION ) );
-                if ( in_array( $ext, array('jpg','jpeg','png','gif','webp','svg'), true ) ) {
-                    $filename = 'team-new-' . time() . '.' . $ext;
-                    if ( move_uploaded_file( $tmp, was_logo_dir() . $filename ) ) {
-                        $insert_data['logo_path'] = $filename;
-                    }
+                $saved = was_save_uploaded_image( $_FILES['team_logo_new'], was_logo_dir(), 'team-new-' . time() );
+                if ( is_wp_error( $saved ) ) {
+                    $logo_error = $saved->get_error_message();
+                } else {
+                    $insert_data['logo_path'] = $saved['file'];
                 }
             }
             $wpdb->insert( "{$wpdb->prefix}was_teams", $insert_data );
-            $notice = 'Team added.';
+            $notice = 'Team added.' . ( $logo_error ? ' The logo was not saved: ' . $logo_error : '' );
         }
     } elseif ( $action === 'edit_team' ) {
         $id = absint( $_POST['team_id'] ?? 0 );
@@ -54,20 +52,18 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['was_teams_nonce'] )
             'second_team_amount' => (float) ( $_POST['second_team_amount'] ?? 0 ),
             'active'         => isset( $_POST['active'] ) ? 1 : 0,
         );
-        // Handle logo upload
+        // Handle logo upload (real JPG / PNG / WebP only, re-encoded — no SVG in this public folder)
+        $logo_error = '';
         if ( ! empty( $_FILES['team_logo']['tmp_name'] ) ) {
-            $tmp  = $_FILES['team_logo']['tmp_name'];
-            $name_file = sanitize_file_name( $_FILES['team_logo']['name'] );
-            $ext  = strtolower( pathinfo( $name_file, PATHINFO_EXTENSION ) );
-            if ( in_array( $ext, array('jpg','jpeg','png','gif','webp','svg'), true ) ) {
-                $filename = 'team-' . $id . '-' . time() . '.' . $ext;
-                if ( move_uploaded_file( $tmp, was_logo_dir() . $filename ) ) {
-                    $update['logo_path'] = $filename;
-                }
+            $saved = was_save_uploaded_image( $_FILES['team_logo'], was_logo_dir(), 'team-' . $id . '-' . time() );
+            if ( is_wp_error( $saved ) ) {
+                $logo_error = $saved->get_error_message();
+            } else {
+                $update['logo_path'] = $saved['file'];
             }
         }
         $wpdb->update( "{$wpdb->prefix}was_teams", $update, array( 'id' => $id ) );
-        $notice = 'Team updated.';
+        $notice = 'Team updated.' . ( $logo_error ? ' The logo was not saved: ' . $logo_error : '' );
     }
 }
 
@@ -140,8 +136,8 @@ $edit_team = $edit_id ? WAS_Database::get_team( $edit_id ) : null;
                     <img src="<?php echo esc_url( was_logo_url( $edit_team->logo_path ) ); ?>" style="width:60px;height:60px;object-fit:contain;border-radius:6px;display:block;margin-bottom:8px;border:1px solid #ddd;padding:4px;">
                     <small>Upload a new image to replace the current logo.</small><br>
                     <?php endif; ?>
-                    <input type="file" name="team_logo" accept="image/*">
-                    <p class="description">PNG or SVG recommended. Square format works best.</p>
+                    <input type="file" name="team_logo" accept="image/jpeg,image/png,image/webp">
+                    <p class="description">PNG recommended (JPG and WebP also accepted; SVG is not). Square format works best.</p>
                 </td>
             </tr>
             <tr>
@@ -209,8 +205,8 @@ $edit_team = $edit_id ? WAS_Database::get_team( $edit_id ) : null;
             <tr>
                 <th><label for="team_logo_new">Team Logo</label></th>
                 <td>
-                    <input type="file" id="team_logo_new" name="team_logo_new" accept="image/*">
-                    <p class="description">PNG or SVG recommended. You can also upload via the Teams page later.</p>
+                    <input type="file" id="team_logo_new" name="team_logo_new" accept="image/jpeg,image/png,image/webp">
+                    <p class="description">PNG recommended (JPG and WebP also accepted; SVG is not). You can also upload via the Teams page later.</p>
                 </td>
             </tr>
         </table>

@@ -1069,27 +1069,19 @@ class WAS_Portal {
             wp_send_json_error( array( 'message' => 'No photo uploaded.' ) );
         }
 
-        $tmp  = $_FILES['photo']['tmp_name'];
-        $name = sanitize_file_name( $_FILES['photo']['name'] );
-        $ext  = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
-
-        if ( ! in_array( $ext, array('jpg','jpeg','png','gif','webp'), true ) ) {
-            wp_send_json_error( array( 'message' => 'Invalid file type. Please upload a JPEG or PNG.' ) );
-        }
-
         if ( $_FILES['photo']['size'] > 8 * 1024 * 1024 ) {
             wp_send_json_error( array( 'message' => 'Photo must be under 8MB.' ) );
         }
 
-        $filename = 'player-' . $player_id . '-' . time() . '.' . $ext;
-        $dest     = was_photo_dir() . $filename;
-
-        if ( ! move_uploaded_file( $tmp, $dest ) ) {
-            wp_send_json_error( array( 'message' => 'Could not save the photo. Please try again.' ) );
+        // Real JPG / PNG / WebP only, re-encoded so no EXIF/GPS data is kept.
+        $saved = was_save_uploaded_image( $_FILES['photo'], was_photo_dir(), 'player-' . $player_id . '-' . time() );
+        if ( is_wp_error( $saved ) ) {
+            wp_send_json_error( array( 'message' => $saved->get_error_message() ) );
         }
+        $filename = $saved['file'];
 
         // Delete old photo file
-        if ( $player->photo_path ) {
+        if ( $player->photo_path && basename( $player->photo_path ) !== $filename ) {
             $old_path = was_photo_dir() . basename( $player->photo_path );
             if ( file_exists( $old_path ) ) @unlink( $old_path );
         }
@@ -1174,24 +1166,17 @@ class WAS_Portal {
             wp_send_json_error( array( 'message' => 'No file uploaded.' ) );
         }
 
-        $tmp  = $_FILES['logo']['tmp_name'];
-        $name = sanitize_file_name( $_FILES['logo']['name'] );
-        $ext  = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
-
-        if ( ! in_array( $ext, array('jpg','jpeg','png','gif','webp','svg'), true ) ) {
-            wp_send_json_error( array( 'message' => 'Invalid file type. Please upload an image.' ) );
-        }
-
         if ( $_FILES['logo']['size'] > 2 * 1024 * 1024 ) {
             wp_send_json_error( array( 'message' => 'File too large. Maximum size is 2MB.' ) );
         }
 
-        $filename = 'team-' . $team_id . '-' . time() . '.' . $ext;
-        $dest     = was_logo_dir() . $filename;
-
-        if ( ! move_uploaded_file( $tmp, $dest ) ) {
-            wp_send_json_error( array( 'message' => 'Could not save the file. Please try again.' ) );
+        // Real JPG / PNG / WebP only, re-encoded. No SVG: this folder is public and an SVG
+        // can carry script.
+        $saved = was_save_uploaded_image( $_FILES['logo'], was_logo_dir(), 'team-' . $team_id . '-' . time() );
+        if ( is_wp_error( $saved ) ) {
+            wp_send_json_error( array( 'message' => $saved->get_error_message() ) );
         }
+        $filename = $saved['file'];
 
         global $wpdb;
         $wpdb->update(
