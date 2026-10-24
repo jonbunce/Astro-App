@@ -392,14 +392,12 @@ class WAS_Registration {
 
         // Verify the security token WITHOUT dying. A stale token (almost always the page
         // was served from cache) otherwise reaches the browser as a generic "network
-        // error"; give a clear, actionable message instead — and log so we can confirm.
+        // error"; give a clear, actionable message instead.
         if ( ! check_ajax_referer( 'was_nonce', 'nonce', false ) ) {
-            error_log( '[WAS-SUBMIT] nonce FAILED user=' . get_current_user_id() );
             wp_send_json_error( array(
                 'message' => 'Your session has expired, or this page was loaded from a cached copy. Please refresh the page and submit again — the details you entered are safe.',
             ) );
         }
-        error_log( '[WAS-SUBMIT] reached user=' . get_current_user_id() . ' token=' . ( empty( $_POST['was_token'] ) ? 'none' : 'yes' ) );
 
         // WordPress adds slashes to $_POST; strip them so apostrophes (O'Brien, St John's)
         // and similar aren't stored with stray backslashes.
@@ -665,8 +663,6 @@ class WAS_Registration {
             set_transient( 'was_late_signup_' . get_current_user_id(), $late_signup, 15 * MINUTE_IN_SECONDS );
             WAS_Notifications::late_signup_alert( $fresh_player, $guardian_obj, $late_signup );
         }
-
-        error_log( '[WAS-SUBMIT] OK player=' . $player->id . ' type=' . $player->participation_type );
 
         // Build completion URL from the page URL passed by the browser
         $base_url = esc_url_raw( $_POST['current_url'] ?? home_url( '/' ) );
