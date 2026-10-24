@@ -10,7 +10,7 @@ import { Kicker } from '@/components/Kicker';
 import { Screen } from '@/components/Screen';
 import { Figure, Title, Txt } from '@/components/Txt';
 import { crestSource, img } from '@/images';
-import { childStatusLabel } from '@/lib/childStatus';
+import { childStatusLabel, subsNote } from '@/lib/childStatus';
 import { formatDate, formatMoney, openSignedIn } from '@/lib/website';
 import { colors, fonts } from '@/theme';
 
@@ -48,10 +48,16 @@ export default function ChildDetail() {
 
       <Glass style={styles.subs}>
         <Txt variant="label">Monthly subs</Txt>
-        <View style={styles.total}>
-          <Figure size={46}>{formatMoney(child.monthly)}</Figure>
-          <Txt variant="small">a month</Txt>
-        </View>
+        {subsNote(child) ? (
+          <Txt variant="strong" style={{ fontSize: 18 }}>
+            {subsNote(child)}
+          </Txt>
+        ) : (
+          <View style={styles.total}>
+            <Figure size={46}>{formatMoney(child.monthly)}</Figure>
+            <Txt variant="small">a month</Txt>
+          </View>
+        )}
         {child.breakdown.map((line) => (
           <View key={line.label} style={styles.line}>
             <Txt variant="small">{line.label}</Txt>

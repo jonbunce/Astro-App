@@ -87,7 +87,8 @@ interface Payment { date: string; amount: number; status: 'paid' | 'pending' | '
 interface Child {
   id: number; firstName: string; lastName: string; team: Team;
   participation: 'signed' | 'train_only'; status: 'active' | 'pending' | 'inactive' | 'withdrawn';
-  monthly: number; breakdown: MoneyLine[]; nextPayment: string | null; lastPayment: Payment | null;
+  monthly: number; paymentType: 'gocardless' | 'sibling_rate' | 'team_direct' | 'exempt';
+  breakdown: MoneyLine[]; nextPayment: string | null; lastPayment: Payment | null;
   arrears: { total: number; reason: string } | null;
   consents: { photography: boolean; legal: boolean };
   medicalOnFile: boolean; emergencyOnFile: boolean;

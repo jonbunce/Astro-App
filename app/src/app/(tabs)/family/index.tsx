@@ -11,7 +11,7 @@ import { Kicker } from '@/components/Kicker';
 import { Screen } from '@/components/Screen';
 import { Figure, Title, Txt } from '@/components/Txt';
 import { crestSource, img } from '@/images';
-import { childStatusLabel } from '@/lib/childStatus';
+import { childStatusLabel, subsNote } from '@/lib/childStatus';
 import { formatDate, formatMoney, openSignedIn } from '@/lib/website';
 import { colors } from '@/theme';
 
@@ -99,6 +99,13 @@ function ChildCard({ child }: { child: Child }) {
           </View>
           <PillButton label="Pay now" variant="red" onPress={() => openSignedIn('/account-portal/')} />
         </View>
+      ) : subsNote(child) ? (
+        <Pressable accessible={false} onPress={open} style={styles.stats}>
+          <View style={styles.stat}>
+            <Txt variant="strong">{subsNote(child)}</Txt>
+            <Txt variant="caption">Nothing is collected by Direct Debit</Txt>
+          </View>
+        </Pressable>
       ) : (
         <Pressable accessible={false} onPress={open} style={styles.stats}>
           <View style={styles.stat}>

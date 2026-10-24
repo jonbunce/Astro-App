@@ -181,6 +181,9 @@ class WAS_Rest {
             'participation'   => $signed ? 'signed' : 'train_only',
             'status'          => (string) $p->registration_status,
             'monthly'         => self::money( $breakdown['total'] ),
+            // gocardless | sibling_rate | team_direct (paid to the team) | exempt — so the app can
+            // say "Exempt" or "Paid to the team" rather than "£0.00 a month".
+            'paymentType'     => (string) $p->payment_type,
             'breakdown'       => $lines,
             'nextPayment'     => self::next_payment( $p, $breakdown, $payments ),
             'lastPayment'     => self::last_payment( $payments ),

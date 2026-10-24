@@ -23,6 +23,7 @@ export const mockFamily: Child[] = [
     participation: 'signed',
     status: 'active',
     monthly: 22,
+    paymentType: 'sibling_rate',
     breakdown: [
       { label: 'U10 Panthers subs', amount: 25 },
       { label: 'Sibling rate', amount: -3 },
@@ -43,6 +44,7 @@ export const mockFamily: Child[] = [
     participation: 'signed',
     status: 'active',
     monthly: 22,
+    paymentType: 'gocardless',
     breakdown: [{ label: 'U8 Sharks subs', amount: 22 }],
     nextPayment: '2026-11-01',
     lastPayment: { date: '2026-10-01', amount: 22, status: 'failed' },

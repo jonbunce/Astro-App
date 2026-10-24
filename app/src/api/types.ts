@@ -38,6 +38,8 @@ export interface Child {
   participation: 'signed' | 'train_only';
   status: 'active' | 'pending' | 'inactive' | 'withdrawn';
   monthly: number;
+  /** team_direct = subs paid to the team, not the club; exempt = no subs. */
+  paymentType: 'gocardless' | 'sibling_rate' | 'team_direct' | 'exempt';
   breakdown: MoneyLine[];
   nextPayment: string | null;
   lastPayment: Payment | null;
