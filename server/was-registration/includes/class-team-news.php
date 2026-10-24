@@ -340,6 +340,7 @@ class WAS_Team_News {
     public static function ajax_approve() {
         self::guard_oversized_post();
         $post_id = self::reviewer_post_or_die();
+        $was_published = ( get_post_status( $post_id ) === 'publish' );
 
         $err = self::apply_edits( $post_id );
         if ( $err ) wp_send_json_error( array( 'message' => $err ) );
@@ -360,6 +361,11 @@ class WAS_Team_News {
         delete_post_meta( $post_id, self::META_REJECT );
 
         WAS_Notifications::team_news_decision( $post_id, 'approved', '' );
+
+        // Newly published: copy it to the team's parents' app inboxes (app users only).
+        if ( ! $was_published && $team && get_post_status( $post_id ) === 'publish' ) {
+            WAS_Inbox::deliver_team_news( $post_id, $team );
+        }
 
         wp_send_json_success( array(
             'message'   => 'Published.',

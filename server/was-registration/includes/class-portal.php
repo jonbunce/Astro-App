@@ -397,6 +397,18 @@ class WAS_Portal {
         return array( 'me', '', $user->user_email );
     }
 
+    /**
+     * Who a club message is from, as the app inbox shows it: the sender's name when a
+     * coach sent it as themselves, otherwise "From the committee".
+     */
+    private static function msg_from_label( $sender_id, $from_mode ) {
+        if ( $from_mode !== 'club' && $sender_id && in_array( 'coach', was_get_roles( $sender_id ), true ) ) {
+            $sender = get_userdata( $sender_id );
+            if ( $sender && trim( (string) $sender->display_name ) !== '' ) return trim( (string) $sender->display_name );
+        }
+        return 'From the committee';
+    }
+
     private static function msg_gate() {
         check_ajax_referer( 'was_nonce', 'nonce' );
         if ( ! is_user_logged_in() || ! was_has_role( 'committee' ) ) {
@@ -523,6 +535,16 @@ class WAS_Portal {
             WAS_Notifications::send_club_message( $to, $job['subject'], $job['body'], $job['reply_to'], $job['from_email'] ?? '' );
         }
         $job['sent'] += count( $batch );
+
+        // App inbox copies for this batch (app users only). There is no message row yet on
+        // this path, so they carry ref 0, and the job remembers who has it so a person with
+        // two addresses on the list gets it once. (Jobs started before 2.30.0 have no list.)
+        $had = array_map( 'intval', (array) ( $job['inbox_users'] ?? array() ) );
+        $job['inbox_users'] = array_merge( $had, WAS_Inbox::deliver_club_message(
+            0, $batch, $job['subject'], $job['body'],
+            self::msg_from_label( (int) ( $job['sender_id'] ?? 0 ), $job['from_mode'] ?? 'me' ),
+            $had
+        ) );
 
         if ( $job['sent'] >= count( $job['emails'] ) ) {
             global $wpdb;
@@ -712,11 +734,23 @@ class WAS_Portal {
 
         $emails = json_decode( (string) $m->recipient_list, true ) ?: array();
         $from   = $m->from_mode === 'club' ? WAS_Notifications::club_contact_email() : '';
+        $label  = self::msg_from_label( (int) $m->sender_user_id, $m->from_mode );
         $i      = (int) $m->sent_count;
+        $chunk  = array();   // sent but not yet copied to app inboxes
         while ( $i < count( $emails ) && time() - $start < 40 ) {
             WAS_Notifications::send_club_message( $emails[ $i ], $m->subject, $m->body, $m->reply_to, $from );
+            $chunk[] = $emails[ $i ];
             $i++;
             $wpdb->update( $t, array( 'sent_count' => $i ), array( 'id' => $id ) );
+            // App inbox copies every 20 emails (ref = this message, so a resumed run never
+            // gives anyone a second copy).
+            if ( count( $chunk ) >= 20 ) {
+                WAS_Inbox::deliver_club_message( $id, $chunk, $m->subject, $m->body, $label );
+                $chunk = array();
+            }
+        }
+        if ( $chunk ) {
+            WAS_Inbox::deliver_club_message( $id, $chunk, $m->subject, $m->body, $label );
         }
 
         if ( $i >= count( $emails ) ) {
