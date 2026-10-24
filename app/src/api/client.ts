@@ -1,4 +1,6 @@
+import Constants from 'expo-constants';
 import * as Device from 'expo-device';
+import { Platform } from 'react-native';
 
 import { mockConfig, mockFamily, mockHome, mockInbox, mockMe, mockNews } from './mock';
 import type { AppConfig, Child, HomeData, InboxItem, Me, NewsItem, Session } from './types';
@@ -49,7 +51,13 @@ export const api = {
     if (isMock) return later({ token: 'sample-token' }, 600);
     return request('/wa/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password, device: Device.modelName ?? 'Phone' }),
+      body: JSON.stringify({
+        email,
+        password,
+        device: Device.modelName ?? 'Phone',
+        platform: Platform.OS,
+        app_version: Constants.expoConfig?.version ?? '',
+      }),
     });
   },
   async logout(): Promise<void> {
