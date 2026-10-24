@@ -436,6 +436,32 @@ add_action( 'rest_api_init', function () {
     ) );
 } );
 
+/**
+ * May this (signed-in) user see this child's photo?
+ *  - admins, committee, social media and registration officers: any child;
+ *  - coaches: children on one of their own teams (main team or an additional team);
+ *  - parents: their own children.
+ * Nobody else — e.g. a treasurer with no other role — sees children's photos.
+ */
+function was_can_view_player_photo( $player, $user_id ) {
+    if ( user_can( $user_id, 'manage_options' ) ) return true;
+
+    $roles = was_get_roles( $user_id );
+    if ( array_intersect( array( 'committee', 'social_media', 'registration_officer' ), $roles ) ) return true;
+
+    if ( in_array( 'coach', $roles, true ) ) {
+        $team_ids = array_map( function( $t ) { return (int) $t->id; }, WAS_Accounts::get_coach_teams( $user_id ) );
+        if ( in_array( (int) $player->team_id, $team_ids, true ) ) return true;
+        foreach ( WAS_Database::get_player_extra_teams( $player->id ) as $xt ) {
+            if ( in_array( (int) $xt->team_id, $team_ids, true ) ) return true;
+        }
+    }
+
+    // Own children (current_guardian() is the signed-in user's family record).
+    $guardian = WAS_Accounts::current_guardian();
+    return $guardian && (int) $player->primary_guardian_id === (int) $guardian->id;
+}
+
 // Photo serving via admin-ajax (cookie auth works here)
 function was_serve_player_photo_ajax() {
     if ( ! wp_verify_nonce( $_GET['nonce'] ?? '', 'was_photo_nonce' ) ) {
@@ -443,22 +469,16 @@ function was_serve_player_photo_ajax() {
     }
     $user_id = get_current_user_id();
     if ( ! $user_id ) { status_header( 401 ); exit( 'Not authenticated' ); }
-    $roles = was_get_roles( $user_id );
-    if ( empty( $roles ) && ! current_user_can( 'manage_options' ) ) {
-        status_header( 403 ); exit( 'Forbidden' );
-    }
     $player_id = absint( $_GET['player_id'] ?? 0 );
     $player    = WAS_Database::get_player( $player_id );
-    if ( ! $player || empty( $player->photo_path ) ) {
+    if ( ! $player ) {
         status_header( 404 ); exit( 'Not found' );
     }
-    // Parents and social media officers with no elevated roles only see appropriate content
-    $elevated = in_array( 'coach', $roles, true ) || in_array( 'treasurer', $roles, true ) || in_array( 'social_media', $roles, true ) || in_array( 'committee', $roles, true ) || in_array( 'registration_officer', $roles, true );
-    if ( in_array( 'parent', $roles, true ) && ! $elevated && ! current_user_can( 'manage_options' ) ) {
-        $guardian = WAS_Accounts::current_guardian();
-        if ( ! $guardian || $player->primary_guardian_id != $guardian->id ) {
-            status_header( 403 ); exit( 'Forbidden' );
-        }
+    if ( ! was_can_view_player_photo( $player, $user_id ) ) {
+        status_header( 403 ); exit( 'Forbidden' );
+    }
+    if ( empty( $player->photo_path ) ) {
+        status_header( 404 ); exit( 'Not found' );
     }
     $path = was_photo_dir() . basename( $player->photo_path );
     if ( ! file_exists( $path ) ) { status_header( 404 ); exit( 'File not found' ); }
