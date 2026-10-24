@@ -293,6 +293,8 @@
         }, function (res) {
             if (res.success) {
                 window.location.href = res.data.redirect;
+            } else {
+                alert((res.data && res.data.message) || 'Could not sign out. Please refresh the page and try again.');
             }
         });
     });

@@ -317,15 +317,36 @@ class WAS_Accounts {
         $login    = sanitize_text_field( $_POST['login']    ?? '' );
         $password = $_POST['password']                      ?? '';
         $remember = ! empty( $_POST['remember'] );
-        $redirect = sanitize_url( $_POST['redirect_to'] ?? home_url( '/account-portal/' ) );
+
+        // Only ever send people somewhere on this site after signing in (no open redirect).
+        $portal   = home_url( '/account-portal/' );
+        $redirect = wp_validate_redirect( sanitize_url( wp_unslash( $_POST['redirect_to'] ?? '' ) ), $portal );
+        if ( ! $redirect ) $redirect = $portal;
 
         if ( empty( $login ) || empty( $password ) ) {
             wp_send_json_error( array( 'message' => 'Please enter your email address and password.' ) );
         }
+
+        // Brute-force brake: after 5 wrong passwords for the same email from the same IP
+        // address within 15 minutes, stop trying that pair until the 15 minutes are up.
+        $throttle_key = 'was_login_fail_' . md5( ( $_SERVER['REMOTE_ADDR'] ?? '' ) . '|' . strtolower( $login ) );
+        $failures     = get_transient( $throttle_key );
+        if ( is_array( $failures ) && (int) ( $failures['count'] ?? 0 ) >= 5 ) {
+            wp_send_json_error( array( 'message' => 'Too many unsuccessful sign-in attempts. Please try again in 15 minutes, or <a href="' . esc_url( home_url( '/account-reset/' ) ) . '">reset your password</a>.' ) );
+        }
+
         $user = wp_authenticate( $login, $password );
         if ( is_wp_error( $user ) ) {
+            if ( ! is_array( $failures ) ) {
+                $failures = array( 'count' => 0, 'start' => time() );
+            }
+            $failures['count'] = (int) ( $failures['count'] ?? 0 ) + 1;
+            // Keep the original 15-minute window rather than extending it on every attempt.
+            $ttl = (int) ( $failures['start'] ?? time() ) + 15 * MINUTE_IN_SECONDS - time();
+            set_transient( $throttle_key, $failures, max( MINUTE_IN_SECONDS, $ttl ) );
             wp_send_json_error( array( 'message' => 'Email address or password is incorrect. Please try again.' ) );
         }
+        delete_transient( $throttle_key );
         wp_set_auth_cookie( $user->ID, $remember );
         wp_send_json_success( array( 'redirect' => $redirect ) );
     }
@@ -434,6 +455,10 @@ class WAS_Accounts {
     }
 
     public static function ajax_logout() {
+        // Nonce so another site can't sign people out behind their backs.
+        if ( ! check_ajax_referer( 'was_nonce', 'nonce', false ) ) {
+            wp_send_json_error( array( 'message' => 'Your session has expired. Please refresh the page and try signing out again.' ) );
+        }
         wp_logout();
         wp_send_json_success( array( 'redirect' => home_url( '/account-login/' ) ) );
     }
