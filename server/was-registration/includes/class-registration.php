@@ -378,7 +378,14 @@ class WAS_Registration {
         $guardian = WAS_Accounts::current_guardian();
         if ( ! $guardian ) wp_send_json_error( array( 'message' => 'Your account could not be found.' ) );
 
-        $child   = sanitize_text_field( $_POST['child'] ?? '' );
+        // The child must be one of this family's own registrations (by ID, not a typed name).
+        $player_id = absint( $_POST['player_id'] ?? 0 );
+        $player    = $player_id ? WAS_Database::get_player( $player_id ) : null;
+        if ( ! $player || (int) $player->primary_guardian_id !== (int) $guardian->id ) {
+            wp_send_json_error( array( 'message' => 'Player not found.' ) );
+        }
+
+        $child   = trim( $player->first_name . ' ' . $player->last_name );
         $team_id = absint( $_POST['team_id'] ?? 0 );
         $team    = WAS_Database::get_team( $team_id );
         if ( ! $child || ! $team ) wp_send_json_error( array( 'message' => 'Missing request details.' ) );
@@ -451,8 +458,8 @@ class WAS_Registration {
                 $existing_team_label = $already->team_name ? esc_html( $already->team_name ) : 'a team';
                 $btn = '';
                 if ( $want_team ) {
-                    $btn = '<button type="button" class="was-btn was-btn--primary was-request-team" data-child="'
-                         . esc_attr( $child_name ) . '" data-team-id="' . (int) $player->team_id . '" style="margin-top:12px;">'
+                    $btn = '<button type="button" class="was-btn was-btn--primary was-request-team" data-player-id="'
+                         . (int) $already->id . '" data-team-id="' . (int) $player->team_id . '" style="margin-top:12px;">'
                          . 'Request to add ' . esc_html( $child_name ) . ' to ' . esc_html( $want_team->name ) . '</button>';
                 }
                 wp_send_json_error( array(

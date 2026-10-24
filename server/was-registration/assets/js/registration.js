@@ -311,15 +311,15 @@
     // ── Registration: request to add an already-registered child to another team ──
 
     $(document).on('click', '.was-request-team', function () {
-        var $b     = $(this);
-        var child  = $b.data('child');
-        var teamId = $b.data('team-id');
+        var $b       = $(this);
+        var playerId = $b.data('player-id');
+        var teamId   = $b.data('team-id');
         $b.prop('disabled', true).text('Sending request…');
         $.post(wasAjax.ajaxurl, {
-            action:  'was_request_second_team',
-            nonce:   wasAjax.nonce,
-            child:   child,
-            team_id: teamId
+            action:    'was_request_second_team',
+            nonce:     wasAjax.nonce,
+            player_id: playerId,
+            team_id:   teamId
         }, function (res) {
             if (res.success) {
                 $b.replaceWith($('<p>').css({ color: '#2e7d32', 'font-weight': 700, 'margin-top': '12px' }).text((res.data && res.data.message) || 'Request sent.'));

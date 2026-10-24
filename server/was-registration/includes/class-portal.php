@@ -982,6 +982,9 @@ class WAS_Portal {
             'first_name' => sanitize_text_field( $_POST['first_name'] ?? '' ),
             'last_name'  => sanitize_text_field( $_POST['last_name']  ?? '' ),
         );
+        if ( $update['first_name'] === '' || $update['last_name'] === '' ) {
+            wp_send_json_error( array( 'message' => "Please enter your child's first and last name." ) );
+        }
 
         // Date of birth (only overwrite when a valid past date is supplied — lets existing families backfill)
         $dob_raw = sanitize_text_field( $_POST['dob'] ?? '' );

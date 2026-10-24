@@ -572,10 +572,10 @@
         $msg.hide();
 
         $.post(wasAjax.ajaxurl, {
-            action:  'was_request_second_team',
-            nonce:   wasAjax.nonce,
-            child:   $btn.data('child'),
-            team_id: teamId
+            action:    'was_request_second_team',
+            nonce:     wasAjax.nonce,
+            player_id: $btn.data('player-id'),
+            team_id:   teamId
         }, function (res) {
             if (res.success) {
                 $panel.find('.was-addteam-form').slideUp(150);
@@ -668,8 +668,8 @@
         var playerId = $input.data('player-id');
         var file     = this.files[0];
         if (!file) return;
-        if (file.size > 12 * 1024 * 1024) {
-            alert('Photo must be under 12MB.');
+        if (file.size > 8 * 1024 * 1024) {
+            alert('Photo must be under 8MB.');
             $input.val('');
             return;
         }
