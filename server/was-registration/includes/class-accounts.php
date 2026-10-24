@@ -128,7 +128,7 @@ class WAS_Accounts {
         }
 
         $user = get_user_by( 'email', $email );
-        if ( $user ) {
+        if ( $user && ! self::login_disabled( $user->ID ) ) {
             $key = get_password_reset_key( $user );
             if ( ! is_wp_error( $key ) ) {
                 self::send_reset_email( $user, $key );
@@ -159,6 +159,11 @@ class WAS_Accounts {
         $user = check_password_reset_key( $key, $login );
         if ( is_wp_error( $user ) ) {
             wp_send_json_error( array( 'message' => 'This reset link has expired or has already been used. Please <a href="' . esc_url( home_url( '/account-reset/' ) ) . '">request a new one</a>.' ) );
+        }
+
+        // A link sent before the account was closed must not sign it back in.
+        if ( self::login_disabled( $user->ID ) ) {
+            wp_send_json_error( array( 'message' => esc_html( self::CLOSED_MESSAGE ) ) );
         }
 
         reset_password( $user, $pass );
@@ -337,6 +342,10 @@ class WAS_Accounts {
 
         $user = wp_authenticate( $login, $password );
         if ( is_wp_error( $user ) ) {
+            // The right password, but the owner has asked for the account to be closed.
+            if ( $user->get_error_code() === 'was_login_disabled' ) {
+                wp_send_json_error( array( 'message' => esc_html( self::CLOSED_MESSAGE ) ) );
+            }
             if ( ! is_array( $failures ) ) {
                 $failures = array( 'count' => 0, 'start' => time() );
             }
@@ -736,6 +745,86 @@ class WAS_Accounts {
             'action'   => 'was_resend_verification',
             '_wpnonce' => wp_create_nonce( 'was_resend_verification' ),
         ), admin_url( 'admin-ajax.php' ) );
+    }
+
+    // ── Closed accounts ─────────────────────────────────────────────────────────
+    //
+    // A member can ask, in the Allstars app, for their account to be deleted. The account
+    // is closed at once — no signing in anywhere (website, shop, wp-admin, app) — while
+    // the club works through the request by hand. Nothing is deleted automatically.
+
+    const CLOSED_MESSAGE = 'This account has been closed at your request, so it can no longer be used to sign in. If this is a mistake, please contact the club.';
+
+    /** Hooks that keep a closed account out. Added as soon as the plugin loads. */
+    public static function init_login_guards() {
+        add_filter( 'authenticate',         array( __CLASS__, 'block_closed_login' ), 99 );
+        add_filter( 'allow_password_reset', array( __CLASS__, 'block_closed_reset' ), 10, 2 );
+        add_filter( 'wp_is_application_passwords_available_for_user', array( __CLASS__, 'block_closed_app_passwords' ), 10, 2 );
+    }
+
+    /** True once the account's owner has asked for it to be deleted. */
+    public static function login_disabled( $user_id ) {
+        return (int) $user_id > 0 && (bool) get_user_meta( (int) $user_id, 'was_login_disabled', true );
+    }
+
+    /**
+     * Every username/password sign-in (wp-login, WooCommerce, ASTRO, the app). Only a
+     * correct password reaches here as a WP_User, so a wrong one still gets the usual error.
+     */
+    public static function block_closed_login( $user ) {
+        if ( $user instanceof WP_User && self::login_disabled( $user->ID ) ) {
+            return new WP_Error( 'was_login_disabled', self::CLOSED_MESSAGE );
+        }
+        return $user;
+    }
+
+    public static function block_closed_reset( $allow, $user_id ) {
+        return self::login_disabled( $user_id ) ? false : $allow;
+    }
+
+    public static function block_closed_app_passwords( $available, $user ) {
+        return ( $user instanceof WP_User && self::login_disabled( $user->ID ) ) ? false : $available;
+    }
+
+    /**
+     * The member has confirmed (with their password) that they want their account deleted.
+     * Close it, sign it out everywhere, tell the app plugin, and email the people who
+     * handle it a checklist.
+     */
+    public static function request_deletion( $user_id ) {
+        global $wpdb;
+        $user = get_userdata( $user_id );
+        if ( ! $user ) return;
+
+        update_user_meta( $user->ID, 'was_deletion_requested_at', current_time( 'mysql', true ) ); // UTC
+        update_user_meta( $user->ID, 'was_login_disabled', 1 );
+
+        // What the club will need to find: the children on this account (any season), plus
+        // any registration this account started but never finished.
+        $guardian_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}was_guardians WHERE wp_user_id = %d ORDER BY id ASC LIMIT 1",
+            $user->ID
+        ) );
+        $children = $wpdb->get_results( $wpdb->prepare(
+            "SELECT p.first_name, p.season, p.registration_status, p.gc_mandate_id, p.gc_subscription_id,
+                    t.name AS team_name
+             FROM {$wpdb->prefix}was_players p
+             LEFT JOIN {$wpdb->prefix}was_teams t ON p.team_id = t.id
+             WHERE p.primary_guardian_id = %d
+                OR ( p.primary_guardian_id = 0 AND p.created_by_user = %d )
+             ORDER BY p.season DESC, p.first_name ASC",
+            $guardian_id ?: -1, $user->ID
+        ) );
+
+        WP_Session_Tokens::get_instance( $user->ID )->destroy_all();
+
+        try {
+            do_action( 'was_account_deletion_requested', (int) $user->ID );
+        } catch ( Throwable $e ) {
+            error_log( '[WAS] Account deletion request: a listener failed — ' . $e->getMessage() );
+        }
+
+        WAS_Notifications::account_deletion_requested( $user, $children, (bool) $guardian_id );
     }
 
     public static function get_coach_teams( $user_id ) {

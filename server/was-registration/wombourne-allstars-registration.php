@@ -341,6 +341,10 @@ require_once WAS_PATH . 'includes/class-interest.php';
 require_once WAS_PATH . 'includes/class-arrears.php';
 require_once WAS_PATH . 'admin/class-admin.php';
 
+// A closed account (deletion requested in the app) can't sign in anywhere. Added now, not
+// on init, so it is in place however early anything authenticates.
+WAS_Accounts::init_login_guards();
+
 // Activation
 register_activation_hook( __FILE__, function() {
     WAS_Database::install();

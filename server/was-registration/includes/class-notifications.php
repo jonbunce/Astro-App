@@ -878,4 +878,60 @@ class WAS_Notifications {
             self::merge( $tpl['body'],    $vars )
         );
     }
+
+    // ── Account deletion requested (from the app) ─────────────────────────────
+
+    /**
+     * Tell the registration officers, treasurers and the club admin that a member has
+     * asked for their account to be deleted, with what to do next. The account is already
+     * closed; nothing has been deleted.
+     *
+     * @param WP_User $user         The account.
+     * @param array   $children     Rows: first_name, season, registration_status, team_name, gc_mandate_id, gc_subscription_id.
+     * @param bool    $has_family   Whether a family record is linked to the account.
+     */
+    public static function account_deletion_requested( $user, $children, $has_family = true ) {
+        $club = self::club_name();
+        $name = trim( $user->first_name . ' ' . $user->last_name );
+        if ( $name === '' ) $name = $user->display_name;
+        $when = wp_date( 'j F Y \a\t H:i', time(), new DateTimeZone( 'Europe/London' ) );
+
+        $lines = array();
+        foreach ( (array) $children as $c ) {
+            $who  = trim( (string) $c->first_name ) !== '' ? trim( (string) $c->first_name ) : 'Unfinished registration';
+            $team = trim( (string) $c->team_name ) !== '' ? trim( (string) $c->team_name ) : 'no team';
+            $dd   = ( (string) $c->gc_mandate_id !== '' || (string) $c->gc_subscription_id !== '' ) ? ' — has a Direct Debit on file' : '';
+            $lines[] = '  - ' . $who . ' — ' . $team . ' (' . $c->season . ', ' . $c->registration_status . ')' . $dd;
+        }
+        if ( ! $lines ) {
+            $lines[] = $has_family ? '  (no children on this account)' : '  (no family record is linked to this account)';
+        }
+
+        $roles = array_values( array_diff( was_get_roles( $user->ID ), array( 'parent' ) ) );
+
+        $subject = '[' . $club . '] Account deletion request — ' . $name;
+        $body = "Hello,\n\n"
+              . $name . ' (' . $user->user_email . ") has asked, in the Allstars app, for their ASTRO account to be closed and their personal data deleted. They asked on " . $when . " (UK time).\n\n"
+              . "Already done:\n"
+              . "  - The account can no longer be used to sign in to the website or the app, and it has been signed out everywhere.\n"
+              . "  - Nothing has been deleted yet.\n\n"
+              . "Children on this account:\n"
+              . implode( "\n", $lines ) . "\n\n"
+              . ( $roles ? 'Club roles on this account: ' . implode( ', ', $roles ) . "\n\n" : '' )
+              . "What to do next:\n"
+              . "  1. Cancel any Direct Debit for these children in GoCardless so no more payments are taken. Check first whether anything is still owed or due back.\n"
+              . "  2. Check what the club has to keep. FA registration records and any safeguarding records may have to be kept for a set time - ask the club welfare officer before removing those.\n"
+              . "  3. Then delete the rest of their personal data: the website account, the family record, the children's details, medical and emergency contact information, and photos.\n"
+              . "  4. Email " . $user->user_email . " to confirm it is done, saying what (if anything) has been kept and why.\n\n"
+              . 'Account ID: ' . $user->ID . " (WordPress > Users)\n\n"
+              . "This email was sent automatically by ASTRO.";
+
+        $recipients = array_merge(
+            self::role_emails( array( 'registration_officer', 'treasurer' ) ),
+            array( strtolower( trim( (string) self::admin_email() ) ), strtolower( trim( (string) get_option( 'admin_email' ) ) ) )
+        );
+        foreach ( array_unique( array_filter( $recipients, 'is_email' ) ) as $email ) {
+            wp_mail( $email, $subject, $body );
+        }
+    }
 }
