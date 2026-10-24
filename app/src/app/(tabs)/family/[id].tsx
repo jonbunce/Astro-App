@@ -10,6 +10,7 @@ import { Kicker } from '@/components/Kicker';
 import { Screen } from '@/components/Screen';
 import { Figure, Title, Txt } from '@/components/Txt';
 import { crestSource, img } from '@/images';
+import { childStatusLabel } from '@/lib/childStatus';
 import { formatDate, formatMoney, openSignedIn } from '@/lib/website';
 import { colors, fonts } from '@/theme';
 
@@ -41,7 +42,7 @@ export default function ChildDetail() {
         <Kicker>{`${child.team.ageGroup} ${child.team.name}`}</Kicker>
         <Title size={64}>{child.firstName}</Title>
         <Txt variant="small" style={{ color: 'rgba(255,255,255,0.82)' }}>
-          {child.participation === 'signed' ? 'Signed player' : 'Train only'} · {child.status === 'active' ? 'Active' : 'Pending'}
+          {child.participation === 'signed' ? 'Signed player' : 'Train only'} · {childStatusLabel(child)}
         </Txt>
       </View>
 

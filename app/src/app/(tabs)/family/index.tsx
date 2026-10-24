@@ -11,6 +11,7 @@ import { Kicker } from '@/components/Kicker';
 import { Screen } from '@/components/Screen';
 import { Figure, Title, Txt } from '@/components/Txt';
 import { crestSource, img } from '@/images';
+import { childStatusLabel } from '@/lib/childStatus';
 import { formatDate, formatMoney, openSignedIn } from '@/lib/website';
 import { colors } from '@/theme';
 
@@ -50,6 +51,7 @@ export default function Family() {
 
 function ChildCard({ child }: { child: Child }) {
   const owing = !!child.arrears;
+  const lapsed = child.status === 'inactive';
   const open = () => router.push({ pathname: '/family/[id]', params: { id: String(child.id) } });
   // The card opens the child's details, except the "Pay now" button, which is its own control.
   return (
@@ -72,12 +74,22 @@ function ChildCard({ child }: { child: Child }) {
           </View>
         ) : (
           <View style={styles.status}>
-            <Txt style={styles.statusText}>{child.status === 'active' ? 'Active' : 'Pending'}</Txt>
+            <Txt style={styles.statusText}>{childStatusLabel(child)}</Txt>
           </View>
         )}
       </Pressable>
 
-      {owing && child.arrears ? (
+      {lapsed ? (
+        <View style={styles.owing}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Txt variant="strong">Not currently playing</Txt>
+            <Txt variant="caption" style={{ color: 'rgba(255,255,255,0.74)' }}>
+              Set up a new Direct Debit to rejoin {child.team.name}.
+            </Txt>
+          </View>
+          <PillButton label="Rejoin" onPress={() => openSignedIn('/account-portal/')} />
+        </View>
+      ) : owing && child.arrears ? (
         <View style={styles.owing}>
           <View style={{ flex: 1, gap: 2 }}>
             <Figure size={22}>{formatMoney(child.arrears.total)} due</Figure>

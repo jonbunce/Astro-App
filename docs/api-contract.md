@@ -69,7 +69,7 @@ Dates are ISO 8601 strings with the site's UTC offset (`2026-10-24T16:05:00+01:0
 | Method & route | Response |
 |---|---|
 | `GET /me` | `Me` |
-| `GET /family` | `Child[]` — the signed-in guardian's children for the current season with status pending/active |
+| `GET /family` | `Child[]` — the signed-in guardian's children for the current season with status pending/active/inactive (inactive = Direct Debit cancelled; the app offers "Rejoin") |
 | `GET /players/{id}/photo` | image bytes with its content type; 403 unless `was_can_view_player_photo()`; 404 if none |
 | `GET /inbox?page=1` | `InboxItem[]`, newest first, ≤ 50 |
 | `GET /inbox/unread-count` | `{ count }` |

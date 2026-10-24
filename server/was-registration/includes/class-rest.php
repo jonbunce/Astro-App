@@ -135,7 +135,8 @@ class WAS_Rest {
         if ( ! $guardian ) return rest_ensure_response( array() );
 
         $out = array();
-        foreach ( WAS_Database::get_players_by_guardian( $guardian->id, was_season(), array( 'pending', 'active' ) ) as $player ) {
+        // Inactive = Direct Debit cancelled; shown (as on the website) so the parent can rejoin.
+        foreach ( WAS_Database::get_players_by_guardian( $guardian->id, was_season(), array( 'pending', 'active', 'inactive' ) ) as $player ) {
             $out[] = self::child( $player );
         }
         return rest_ensure_response( $out );
