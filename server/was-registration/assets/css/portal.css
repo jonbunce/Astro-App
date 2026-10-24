@@ -1,0 +1,2444 @@
+/* ============================================================
+   Wombourne Allstars — Portal, Login & Account Styles
+   ============================================================ */
+
+/* ── Account pages (login / register) ────────────────────────────────────── */
+
+.was-account-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem 3rem;
+}
+
+.was-account-card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--was-card-bg);
+    border: 1px solid var(--was-border);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+}
+
+.was-account-heading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--was-primary);
+    margin: 0;
+}
+
+.was-account-sub {
+    font-size: 0.85rem;
+    color: var(--was-text-muted);
+    margin: 2px 0 0;
+}
+
+.was-account-intro {
+    font-size: 0.88rem;
+    color: var(--was-text-muted);
+    line-height: 1.55;
+    margin-bottom: 1.25rem;
+}
+
+.was-account-switch {
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--was-text-muted);
+    margin-top: 1.25rem;
+}
+
+/* Prominent "create account" call-to-action on the login screen */
+.was-account-or {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+    margin: 1.35rem 0 0.85rem;
+    color: var(--was-text-muted);
+    font-size: 0.8rem;
+}
+.was-account-or::before,
+.was-account-or::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--was-border);
+}
+.was-btn--create {
+    border: 2px solid var(--was-accent);
+    background: #fff;
+    color: var(--was-primary);
+    font-weight: 700;
+}
+.was-btn--create:hover { background: #fff8ec; }
+
+/* ── Photo cropper modal ──────────────────────────────────────────────────── */
+body.was-crop-open { overflow: hidden; }
+.was-crop-overlay {
+    position: fixed; inset: 0; z-index: 100000;
+    background: rgba(0,0,0,.72);
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.was-crop-box {
+    background: #fff; border-radius: 14px; padding: 16px;
+    width: 100%; max-width: 360px; box-shadow: 0 12px 44px rgba(0,0,0,.35);
+}
+.was-crop-title { font-weight: 700; text-align: center; margin: 0 0 12px; color: var(--was-primary); }
+.was-crop-viewport {
+    position: relative; margin: 0 auto; overflow: hidden;
+    border-radius: 50%; background: #eceff3;
+    touch-action: none; cursor: move; -webkit-user-select: none; user-select: none;
+    box-shadow: 0 0 0 3px var(--was-accent) inset;
+}
+.was-crop-img { position: absolute; top: 0; left: 0; max-width: none; pointer-events: none; -webkit-user-drag: none; }
+.was-crop-zoomrow { display: flex; align-items: center; gap: 10px; margin: 14px 2px 2px; color: var(--was-text-muted); font-weight: 700; }
+.was-crop-zoom { flex: 1; accent-color: var(--was-red); }
+.was-crop-actions { display: flex; gap: 10px; margin-top: 12px; }
+.was-crop-actions .was-btn { flex: 1; }
+
+/* ── Payment schedule breakdown (parent portal) ───────────────────────────── */
+.was-payment-schedule { margin: 0 0 0.75rem; }
+.was-payment-schedule > summary {
+    cursor: pointer; font-size: 0.9rem; padding: 0.4rem 0;
+    color: var(--was-primary); list-style: none;
+}
+.was-payment-schedule > summary::-webkit-details-marker { display: none; }
+.was-payment-schedule > summary:before { content: "\25B8 "; color: var(--was-accent); }
+.was-payment-schedule[open] > summary:before { content: "\25BE "; }
+.was-schedule-table { margin: 0.3rem 0 0; width: 100%; border-collapse: collapse; }
+.was-schedule-table td { padding: 0.3rem 0.2rem; border-bottom: 1px solid var(--was-border); font-size: 0.85rem; }
+.was-schedule-amt { text-align: right; white-space: nowrap; }
+.was-schedule-note { color: var(--was-text-muted); }
+.was-schedule-total td { font-weight: 700; border-bottom: none; border-top: 2px solid var(--was-border); }
+.was-schedule-foot { font-size: 0.78rem; color: var(--was-text-muted); margin: 0.4rem 0 0; }
+
+.was-link {
+    color: var(--was-red);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Input with show/hide toggle */
+.was-input-wrap {
+    position: relative;
+}
+
+.was-input-wrap .was-input {
+    padding-right: 2.5rem;
+}
+
+.was-input-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--was-text-muted);
+    display: flex;
+    align-items: center;
+}
+
+.was-input-toggle:hover { color: var(--was-primary); }
+
+/* Inline field row (two side by side) */
+.was-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+/* Inline label + link */
+.was-field--inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Full-width button */
+.was-btn--full {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem;
+}
+
+/* Ghost button */
+.was-btn--ghost {
+    background: transparent;
+    color: var(--was-text-muted);
+    border: 1px solid var(--was-border);
+}
+
+.was-btn--ghost:hover {
+    background: var(--was-bg);
+    color: var(--was-text);
+}
+
+/* Small button */
+.was-btn--sm {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+}
+
+/* Password strength meter */
+.was-password-strength {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.was-pw-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--was-border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.was-pw-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 2px;
+    transition: width .3s, background .3s;
+}
+
+.was-pw-fill--weak   { background: var(--was-danger); }
+.was-pw-fill--fair   { background: var(--was-warn); }
+.was-pw-fill--good   { background: #f9a825; }
+.was-pw-fill--strong { background: var(--was-success); }
+
+#was-pw-label {
+    font-size: 0.78rem;
+    min-width: 42px;
+    color: var(--was-text-muted);
+}
+
+/* ── Portal wrap ──────────────────────────────────────────────────────────── */
+
+.was-portal-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem 3rem;
+    color: var(--was-text);
+    font-family: inherit;
+}
+
+/* Header — carbon chrome band with the red→gold accent hairline */
+.was-portal-header {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1rem 1.25rem 1.1rem;
+    margin-bottom: 0;
+    background: var(--was-chrome-grad);
+    border-radius: var(--was-radius-md) var(--was-radius-md) 0 0;
+    box-shadow: var(--was-shadow-dark);
+}
+
+/* Sign out pinned to the top-right corner */
+.was-portal-header #was-logout-btn {
+    position: absolute;
+    top: 0.9rem;
+    right: 1rem;
+}
+.was-portal-header__left {
+    min-width: 0;
+    padding-right: 6.5rem; /* keep clear of the pinned sign-out */
+}
+.astro-portal-logo-wrap { margin-bottom: 0.5rem; }
+.was-portal-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--was-accent-grad);
+}
+
+.was-portal-heading {
+    font-size: var(--was-fs-xl);
+    font-weight: 700;
+    color: var(--was-on-dark);
+    margin: 0 0 4px;
+}
+
+.was-portal-user {
+    font-size: 0.88rem;
+    color: var(--was-on-dark-muted);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* On-dark treatments inside the header band */
+.was-portal-header .was-btn--ghost {
+    color: var(--was-on-dark);
+    border-color: rgba(255,255,255,.4);
+    background: transparent;
+}
+.was-portal-header .was-btn--ghost:hover {
+    background: rgba(255,255,255,.12);
+    color: var(--was-on-dark);
+}
+.was-portal-header .was-role-badge {
+    background: rgba(255,255,255,.08);
+    border: 1px solid var(--was-on-dark-line);
+    color: var(--was-on-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.was-portal-header .was-role-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--was-on-dark-faint);
+}
+.was-portal-header .was-role-badge--parent::before       { background: #4d9de0; }
+.was-portal-header .was-role-badge--coach::before        { background: #35b06f; }
+.was-portal-header .was-role-badge--treasurer::before    { background: var(--was-accent); }
+.was-portal-header .was-role-badge--admin::before        { background: #b07fd8; }
+.was-portal-header .was-role-badge--committee::before    { background: var(--was-red); }
+.was-portal-header .was-role-badge--registration::before { background: #2bb3a3; }
+
+/* Role badges */
+.was-role-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.was-role-badge--parent    { background: #e3f2fd; color: #1565c0; }
+.was-role-badge--coach     { background: #e8f5e9; color: #2e7d32; }
+.was-role-badge--treasurer { background: #fff8e1; color: #f57f17; }
+.was-role-badge--admin     { background: #f3e5f5; color: #6a1b9a; }
+.was-role-badge--committee { background: #fdecee; color: var(--was-red); }
+.was-role-badge--registration { background: #e0f2f1; color: #00695c; }
+
+/* ── Lapsed-DD re-subscribe banner (parent card) ─────────────────────────── */
+.was-rejoin-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin: 0 1.25rem 1rem;
+    padding: 0.9rem 1rem;
+    background: var(--was-err-bg);
+    border: 1px solid #efc4cc;
+    border-left: 4px solid var(--was-red);
+    border-radius: var(--was-radius-md);
+}
+.was-rejoin-banner__text { flex: 1 1 260px; }
+.was-rejoin-banner__text strong { color: var(--was-err-ink); }
+.was-rejoin-banner__text p { margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--was-text-muted); }
+.was-rejoin-banner .was-rejoin-btn { flex: none; }
+
+/* ── Arrears / payment-hold banner (parent card) ─────────────────────────── */
+.was-arrears-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin: 0 1.25rem 1rem;
+    padding: 0.9rem 1rem;
+    background: var(--was-amber-bg);
+    border: 1px solid #f0d9a6;
+    border-left: 4px solid var(--was-amber-ink);
+    border-radius: var(--was-radius-md);
+}
+.was-arrears-banner--hold {
+    background: var(--was-err-bg);
+    border-color: #efc4cc;
+    border-left-color: var(--was-red);
+}
+.was-arrears-banner__text { flex: 1 1 260px; }
+.was-arrears-banner__text strong { color: var(--was-amber-ink); }
+.was-arrears-banner--hold .was-arrears-banner__text strong { color: var(--was-err-ink); }
+.was-arrears-banner__text p { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--was-text-muted); }
+.was-arrears-list { margin: 0.35rem 0 0; padding-left: 1.1rem; font-size: 0.85rem; }
+.was-arrears-list li { margin: 0.1rem 0; }
+.was-arrears-banner .was-pay-arrears-btn { flex: none; margin-top: 2px; }
+
+/* ── Treasurer tables: arrears / failed ──────────────────────────────────── */
+.was-treas-scroll { overflow-x: auto; }
+.was-treas-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.76rem;
+    font-weight: 400;
+    color: var(--was-text-muted);
+}
+.was-treas-actions { white-space: nowrap; }
+.was-treas-actions .was-btn { display: block; }
+.was-treas-actions__links { display: block; margin-top: 4px; }
+.was-linkbtn {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    font-size: 0.78rem;
+    color: var(--was-accent);
+    text-decoration: underline;
+    cursor: pointer;
+}
+.was-linkbtn + .was-linkbtn { margin-left: 10px; }
+.was-linkbtn:hover { color: var(--was-text, #1f2933); }
+.was-linkbtn:disabled { color: var(--was-text-muted); cursor: default; text-decoration: none; }
+.was-treas-help {
+    margin: 0;
+    padding: 0.7rem 1.25rem;
+    font-size: 0.8rem;
+    color: var(--was-text-muted);
+    border-top: 1px solid var(--was-border);
+    background: var(--was-bg);
+}
+
+/* ── Messages tab ─────────────────────────────────────────────────────────── */
+.was-msg-audiences { display: flex; flex-direction: column; gap: 8px; }
+.was-msg-audiences .was-checkbox-label { margin: 0; }
+.was-msg-progress { margin-left: 12px; font-size: 0.85rem; color: var(--was-text-muted); font-weight: 600; }
+.was-msg-test { display: flex; gap: 8px; max-width: 480px; }
+.was-msg-test .was-input { flex: 1; min-width: 0; }
+.was-msg-later { display: flex; flex-direction: column; gap: 6px; max-width: 320px; margin-top: 10px; }
+#was-msg-history .was-msg-cancel { margin-left: 6px; }
+
+/* ── Public team page: optional profile facts ─────────────────────────────── */
+.was-profile-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    margin: 0.75rem 0 0.25rem;
+}
+.was-profile-fact {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.88rem;
+}
+.was-profile-fact__icon { color: var(--was-red); margin-top: 2px; flex: none; }
+.was-profile-fact__label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--was-text-muted);
+}
+.was-profile-fact__value { color: var(--was-text); }
+.was-profile-sponsor {
+    margin: 0.5rem 0 0.25rem;
+    font-size: 0.85rem;
+    color: var(--was-text-muted);
+}
+.was-profile-sponsor a { color: var(--was-red); }
+
+/* ── Registration officer: Players panel ──────────────────────────────────── */
+.was-reg-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.was-reg-controls #was-reg-search { flex: 1 1 240px; max-width: 340px; }
+.was-reg-controls #was-reg-team-filter { flex: 0 1 220px; }
+.was-reg-count { font-size: 0.82rem; color: var(--was-text-muted); font-weight: 600; }
+.was-reg-photo-cell { width: 52px; }
+.was-reg-photo {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+.was-reg-age { margin-left: 6px; font-size: 0.78rem; color: var(--was-text-muted); }
+.was-reg-muted { font-size: 0.78rem; color: var(--was-text-muted); }
+.was-reg-paynote { display: inline-block; margin-top: 3px; }
+#was-reg-table td { vertical-align: middle; }
+
+/* Nav tabs — the lower half of the carbon chrome billet */
+.was-portal-nav-wrap {
+    position: relative;
+    margin-bottom: 1.75rem;
+}
+.was-portal-nav {
+    display: flex;
+    gap: 0;
+    background: var(--was-carbon);
+    border-radius: 0 0 var(--was-radius-md) var(--was-radius-md);
+    margin-bottom: 0;
+    padding: 0 0.75rem;
+    box-shadow: var(--was-shadow-md);
+}
+
+/* Scroll-hint arrows for the tab bar (any width; full Flatsome reset).
+   Visibility is driven by JS — wasNavArrows() adds .is-hidden when there is
+   nothing further to scroll to in that direction. */
+.was-nav-arrow {
+    -webkit-appearance: none;
+    appearance: none;
+    display: inline-flex;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 26px;
+    height: 26px;
+    min-height: 0;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0,0,0,.6);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0 0 2px;
+    letter-spacing: normal;
+    text-transform: none;
+    box-shadow: 0 0 6px rgba(0,0,0,.4);
+    cursor: pointer;
+}
+.was-nav-arrow:hover { background: rgba(0,0,0,.8); color: #fff; }
+.was-nav-arrow--left  { left: 5px; }
+.was-nav-arrow--right { right: 5px; }
+.was-nav-arrow.is-hidden { display: none !important; }
+
+/* Fade the tabs out at whichever edge still has more beyond it, so it reads as
+   scrollable on desktop too. Toggled by wasNavArrows(). */
+.was-portal-nav-wrap::before,
+.was-portal-nav-wrap::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 56px;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 1;
+    transition: opacity var(--was-t-fast) var(--was-ease);
+}
+.was-portal-nav-wrap::before {
+    left: 0;
+    border-bottom-left-radius: var(--was-radius-md);
+    background: linear-gradient(to right, var(--was-carbon), rgba(0,0,0,0));
+}
+.was-portal-nav-wrap::after {
+    right: 0;
+    border-bottom-right-radius: var(--was-radius-md);
+    background: linear-gradient(to left, var(--was-carbon), rgba(0,0,0,0));
+}
+.was-portal-nav-wrap.has-more-left::before  { opacity: 1; }
+.was-portal-nav-wrap.has-more-right::after  { opacity: 1; }
+
+.was-portal-nav__tab {
+    padding: 0.8rem 1.15rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--was-on-dark-muted);
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    transition: color var(--was-t-fast) var(--was-ease), border-color var(--was-t-fast) var(--was-ease);
+    cursor: pointer;
+}
+
+.was-portal-nav__tab:hover {
+    color: var(--was-on-dark);
+}
+.was-portal-nav__tab.was-active {
+    color: var(--was-on-dark);
+    border-bottom-color: var(--was-accent);
+}
+
+/* Sections */
+.was-portal-section {
+    display: none;
+}
+
+.was-portal-section__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.was-portal-section__title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: var(--was-fs-lg);
+    font-weight: 700;
+    color: var(--was-carbon);
+    margin: 0;
+}
+.was-portal-section__title::before {
+    content: "";
+    width: 4px;
+    height: 1.1em;
+    border-radius: 2px;
+    background: var(--was-accent-grad);
+    flex: none;
+}
+
+.was-readonly-note {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    color: var(--was-text-muted);
+}
+
+/* ── Parent section — player cards ───────────────────────────────────────── */
+
+.was-player-card {
+    position: relative;
+    background: var(--was-card-bg);
+    border: 1px solid var(--was-border);
+    border-radius: var(--was-radius-md);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    box-shadow: var(--was-shadow-sm);
+}
+.was-player-card::before {
+    content: "";
+    display: block;
+    height: 3px;
+    background: var(--was-accent-grad);
+}
+
+.was-player-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+}
+
+.was-player-card__name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.was-player-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--was-primary);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.was-player-avatar--sm {
+    width: 30px;
+    height: 30px;
+    font-size: 0.85rem;
+}
+
+.was-player-card__name strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.was-player-team {
+    font-size: 0.82rem;
+    color: var(--was-text-muted);
+}
+
+.was-player-card__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Small logo next to the team name on the child card */
+.was-player-team-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    vertical-align: -5px;
+    margin-right: 3px;
+    border-radius: 3px;
+}
+
+/* Status chips (icon + label) */
+.was-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+.was-chip svg { flex: none; }
+.was-chip i { font-style: normal; }
+.was-chip--signed  { background: var(--was-ok-bg); color: var(--was-ok-ink); } /* signed = green, everywhere */
+.was-chip--train   { background: var(--was-neutral-bg); color: var(--was-neutral-ink); }
+.was-chip--ok      { background: var(--was-ok-bg); color: var(--was-ok-ink); }
+.was-chip--pending { background: var(--was-amber-bg); color: var(--was-amber-ink); }
+
+/* Labelled action buttons (add team / edit) — pill styled to match the chips */
+.was-iconbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 11px;
+    border-radius: var(--was-radius-pill);
+    border: 1.5px solid var(--was-border);
+    background: var(--was-card-bg);
+    color: var(--was-neutral-ink);
+    font-size: var(--was-fs-xs);
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    flex: none;
+    transition: border-color var(--was-t-fast) var(--was-ease), color var(--was-t-fast) var(--was-ease), background var(--was-t-fast) var(--was-ease);
+}
+.was-iconbtn svg { flex: none; }
+.was-iconbtn i   { font-style: normal; }
+.was-iconbtn:hover { border-color: var(--was-red); color: var(--was-red); }
+.was-iconbtn.is-open { background: var(--was-carbon); border-color: var(--was-carbon); color: #fff; }
+/* Icon + label swap for the edit toggle (pencil/"Edit" <-> cross/"Close") */
+.was-iconbtn .icon-close,
+.was-iconbtn .label-close { display: none; }
+.was-iconbtn.is-open .icon-open,
+.was-iconbtn.is-open .label-open  { display: none; }
+.was-iconbtn.is-open .icon-close  { display: inline; }
+.was-iconbtn.is-open .label-close { display: inline; }
+
+/* "Add another team" request panel */
+.was-addteam-panel {
+    margin: 0 1.25rem 1rem;
+    padding: 0.9rem 1rem;
+    background: var(--was-bg);
+    border: 1px solid var(--was-border);
+    border-radius: var(--was-radius-md);
+}
+.was-addteam-intro {
+    font-size: 0.85rem;
+    color: var(--was-text-muted);
+    margin: 0 0 0.6rem;
+}
+.was-addteam-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.was-addteam-row .was-addteam-select { flex: 1; }
+
+.was-player-card__payment {
+    border-top: 1px solid var(--was-border);
+    padding: 0.85rem 1.25rem;
+    background: var(--was-bg);
+}
+
+.was-payment-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 0.5rem;
+}
+
+.was-payment-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.was-payment-icon--ok     { background: var(--was-ok-bg); color: var(--was-ok-ink); }
+.was-payment-icon--failed { background: var(--was-err-bg); color: var(--was-err-ink); }
+.was-payment-icon--pending{ background: var(--was-amber-bg); color: var(--was-amber-ink); }
+
+.was-payment-text--failed { color: var(--was-err-ink); font-weight: 600; }
+
+/* Payment history expand */
+.was-payment-history summary {
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--was-primary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    list-style: none;
+}
+
+.was-payment-history summary::-webkit-details-marker { display: none; }
+
+.was-mini-table {
+    width: 100%;
+    font-size: 0.82rem;
+    border-collapse: collapse;
+}
+
+.was-mini-table th,
+.was-mini-table td {
+    padding: 5px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--was-border);
+}
+
+.was-mini-table th { color: var(--was-text-muted); font-weight: 600; }
+
+.was-contact-note {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    background: var(--was-bg);
+    border-radius: var(--was-radius);
+    font-size: 0.85rem;
+    color: var(--was-text-muted);
+    line-height: 1.5;
+}
+
+/* ── Coach section ────────────────────────────────────────────────────────── */
+
+.was-team-block {
+    background: var(--was-card-bg);
+    border: 1px solid var(--was-border);
+    border-radius: var(--was-radius-md);
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    box-shadow: var(--was-shadow-sm);
+}
+
+.was-team-block__header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.25rem calc(0.9rem + 3px);
+    background: var(--was-chrome-grad);
+    flex-wrap: wrap;
+}
+.was-team-block__header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--was-accent-grad);
+}
+
+.was-team-block__titlewrap {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.was-team-block__name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+    min-width: 0;
+}
+
+/* "Edit team profile" — plain small text link under the team name (in-header).
+   Scoped + fully reset so the Flatsome theme's bare-<button> styles
+   (min-height:2.5em, text-transform:uppercase, padding, letter-spacing) can't
+   inflate it — this is a <button>, so it needs an explicit override. */
+.was-team-block__titlewrap .was-team-profile-link {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    min-width: 0;
+    height: auto;
+    width: fit-content;
+    max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: normal;
+    text-transform: none;
+    color: rgba(255,255,255,0.72);
+    cursor: pointer;
+    transition: color .15s;
+}
+.was-team-block__titlewrap .was-team-profile-link:hover {
+    color: #fff;
+    text-decoration: underline;
+    background: none;
+}
+.was-team-block__titlewrap .was-team-profile-link svg {
+    flex: none;
+    width: 11px;
+    height: 11px;
+    margin: 0;
+}
+
+.was-team-block__header .was-badge {
+    background: rgba(255,255,255,.2);
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.was-team-block__header .was-logo-upload-btn {
+    flex-shrink: 0;
+    border-color: rgba(255,255,255,0.5);
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.75rem;
+    min-height: 32px;
+}
+
+.was-team-block__header .was-logo-upload-btn:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.was-team-block__header .was-logo-upload-status {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.78rem;
+}
+
+.was-coach-player-list { padding: 0.5rem 0; }
+
+/* Expand/collapse per player */
+.was-coach-player {
+    border-top: 1px solid var(--was-border);
+}
+
+.was-coach-player:first-child { border-top: none; }
+
+.was-coach-player__summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.was-coach-player__summary::-webkit-details-marker { display: none; }
+.was-coach-player__summary:hover { background: var(--was-bg); }
+
+/* Name + badges share a wrapping row: badges sit right of the name when there's
+   room, and STACK onto their own (still right-aligned) line when the name would
+   otherwise clash with them. */
+.was-coach-player__idwrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+}
+
+.was-coach-player__name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.was-coach-player__badges {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.was-chevron {
+    color: var(--was-text-muted);
+    transition: transform .2s;
+    flex-shrink: 0;
+}
+
+.was-coach-player[open] .was-chevron {
+    transform: rotate(180deg);
+}
+
+.was-coach-player__detail {
+    padding: 1rem 1.25rem 1.25rem;
+    background: var(--was-bg);
+    border-top: 1px solid var(--was-border);
+}
+
+.was-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.was-detail-heading {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--was-text-muted);
+    margin: 0 0 6px;
+}
+
+.was-detail-heading--medical {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #c62828;
+}
+
+.was-detail-value {
+    font-size: 0.9rem;
+    margin: 0 0 2px;
+    line-height: 1.4;
+}
+
+.was-detail-empty {
+    font-size: 0.85rem;
+    color: var(--was-text-muted);
+    font-style: italic;
+    margin: 0;
+}
+
+/* Medical block */
+.was-medical-block {
+    background: #fff8f8;
+    border: 1px solid #fdd;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.was-medical-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #fdd;
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.was-medical-row:last-child { border-bottom: none; }
+
+.was-medical-row--alert {
+    background: #fff3f3;
+    border-radius: 4px;
+    padding: 0.6rem 0.5rem;
+    margin: 0 -0.5rem;
+}
+
+.was-medical-label {
+    font-weight: 600;
+    color: #7f1d1d;
+    font-size: 0.82rem;
+}
+
+.was-medical-value { color: var(--was-text); }
+
+.was-no-medical {
+    font-size: 0.85rem;
+    color: var(--was-text-muted);
+    font-style: italic;
+    margin: 0.5rem 0 0;
+}
+
+.was-empty-note {
+    padding: 1rem 1.25rem;
+    font-size: 0.88rem;
+    color: var(--was-text-muted);
+    font-style: italic;
+}
+
+/* ── Treasurer section ────────────────────────────────────────────────────── */
+
+.was-treas-stats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-bottom: 0.6rem;
+}
+
+.was-treas-exempt-note {
+    font-size: 0.78rem;
+    color: var(--was-text-muted);
+    margin: 0 0 1.25rem;
+}
+
+.was-treas-stat {
+    position: relative;
+    background: var(--was-chrome-grad);
+    border: 1px solid var(--was-carbon-3);
+    border-radius: var(--was-radius-md);
+    padding: 1rem 0.75rem calc(1rem + 3px);
+    text-align: center;
+    overflow: hidden;
+}
+.was-treas-stat::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: transparent;
+}
+.was-treas-stat--warn::after   { background: var(--was-accent); }
+.was-treas-stat--danger::after { background: var(--was-red); }
+
+.was-treas-stat__num {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--was-accent);
+    line-height: 1.15;
+}
+
+.was-treas-stat__label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--was-on-dark-muted);
+    margin-top: 3px;
+}
+
+.was-treas-block {
+    background: var(--was-card-bg);
+    border: 1px solid var(--was-border);
+    border-radius: var(--was-radius-md);
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    box-shadow: var(--was-shadow-sm);
+}
+
+.was-treas-block__title {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--was-on-dark);
+    margin: 0;
+    padding: 0.9rem 1.25rem calc(0.9rem + 3px);
+    background: var(--was-chrome-grad);
+}
+.was-treas-block__title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--was-accent-grad);
+}
+.was-treas-block__title svg { color: var(--was-accent); }
+
+.was-treas-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.was-treas-table th,
+.was-treas-table td {
+    padding: 0.65rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--was-border);
+    vertical-align: middle;
+}
+
+.was-treas-table th {
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--was-text-muted);
+    background: var(--was-bg);
+}
+
+.was-treas-table tr:last-child td { border-bottom: none; }
+
+/* ── Badges ───────────────────────────────────────────────────────────────── */
+
+/* Base pill — shared by coach detail badges, payment-history badges, etc. */
+.was-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: nowrap;
+}
+.was-badge svg { flex: none; }
+
+.was-badge--green  { background: var(--was-ok-bg); color: var(--was-ok-ink); }
+.was-badge--red    { background: var(--was-err-bg); color: var(--was-err-ink); }
+.was-badge--amber  { background: var(--was-amber-bg); color: var(--was-amber-ink); }
+.was-badge--yellow { background: var(--was-amber-bg); color: var(--was-amber-ink); }
+.was-badge--grey   { background: var(--was-neutral-bg); color: var(--was-neutral-ink); }
+.was-badge--blue   { background: var(--was-info-bg); color: var(--was-info-ink); }
+
+/* ── Coach card: squad badges (icon + label) next to each player name ──────────
+   Same visual language as the parent card's status chips, but its own component
+   so it doesn't inherit the parent card's mobile icon-only collapse. */
+.was-sbadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 9px;
+    border-radius: 14px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+.was-sbadge svg { flex: none; }
+
+.was-sbadge--signed  { background: var(--was-ok-bg); color: var(--was-ok-ink); }      /* Signed — green */
+.was-sbadge--train   { background: var(--was-neutral-bg); color: var(--was-neutral-ink); } /* Train only */
+.was-sbadge--nophoto { background: var(--was-err-bg); color: var(--was-err-ink); }    /* No photos */
+.was-sbadge--medical { background: var(--was-amber-bg); color: var(--was-amber-ink); } /* Health Notes */
+.was-sbadge--hold    { background: var(--was-err-bg); color: var(--was-err-ink); }    /* Payment hold */
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 700px) {
+    .was-treas-stats   { grid-template-columns: 1fr 1fr; }
+    .was-detail-grid   { grid-template-columns: 1fr; }
+    .was-field-row     { grid-template-columns: 1fr; }
+    .was-portal-nav__tab { padding: 0.65rem 0.9rem; font-size: 0.82rem; }
+    .was-treas-table   { font-size: 0.8rem; }
+    .was-treas-table th,
+    .was-treas-table td { padding: 0.5rem 0.6rem; }
+    .was-medical-row   { grid-template-columns: 1fr; gap: 0.25rem; }
+}
+
+@media (max-width: 500px) {
+    .was-account-card { padding: 1.25rem; }
+}
+
+/* ── Social Media Officer portal section ──────────────────────────────────── */
+
+.was-smo-banner {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 1rem 1.1rem;
+    border-radius: var(--was-radius);
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.was-smo-banner--gdpr {
+    background: var(--was-amber-bg);
+    border: 1px solid #f0dfb6;
+    color: var(--was-amber-ink);
+}
+
+.was-smo-banner--gdpr svg { color: var(--was-warn); }
+
+.was-smo-banner--info {
+    background: var(--was-info-bg);
+    border: 1px solid #bad0f8;
+    color: var(--was-text);
+}
+
+.was-smo-banner--info svg { color: var(--was-info-ink); }
+
+.was-smo-banner strong { display: block; margin-bottom: 3px; }
+.was-smo-banner p { margin: 0; }
+
+.was-smo-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.was-select--inline {
+    width: auto;
+    min-width: 180px;
+}
+
+.was-smo-count {
+    font-size: 0.85rem;
+    color: var(--was-text-muted);
+    margin-left: auto;
+}
+
+.was-smo-card { padding: 0; overflow: hidden; }
+
+.was-smo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.was-smo-table th {
+    background: var(--was-bg);
+    padding: 0.65rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--was-text-muted);
+    border-bottom: 1px solid var(--was-border);
+}
+
+.was-smo-table td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--was-border);
+    vertical-align: middle;
+}
+
+.was-smo-table tr:last-child td { border-bottom: none; }
+.was-smo-table tr:hover td { background: var(--was-bg); }
+
+.was-smo-col-name   { min-width: 140px; }
+.was-smo-col-photo  { width: 64px; }
+.was-smo-col-team   { min-width: 120px; }
+.was-smo-col-consent { width: 100px; text-align: center; }
+
+.was-smo-table th:nth-child(4),
+.was-smo-table th:nth-child(5),
+.was-smo-table td:nth-child(4),
+.was-smo-table td:nth-child(5) { text-align: center; }
+
+.was-smo-thumb-link { display: block; width: 48px; height: 48px; }
+
+.was-smo-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #e0e3e8;
+    display: block;
+    transition: transform 0.15s, border-color 0.15s;
+}
+
+.was-smo-thumb-link:hover .was-smo-thumb {
+    transform: scale(1.08);
+    border-color: var(--was-primary);
+}
+
+.was-consent-tick {
+    color: var(--was-ok-ink);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.was-consent-cross {
+    color: var(--was-err-ink);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+/* Lightbox */
+.was-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.was-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+}
+
+.was-lightbox-content {
+    position: relative;
+    z-index: 1;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.was-lightbox-content img {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 8px;
+    display: block;
+}
+
+.was-lightbox-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fff;
+    border: none;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    color: #333;
+}
+
+.was-lightbox-close:hover { background: #f0f0f0; }
+
+/* Hidden rows when filtered */
+.was-smo-table tr.was-hidden { display: none; }
+
+/* ── v2.2.0: Child thumbnails + edit forms ────────────────────────────────── */
+
+.was-player-thumb-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+}
+
+.was-player-avatar-img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--was-border);
+    display: block;
+}
+
+.was-thumb-change-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    border-radius: 50%;
+    background: var(--was-primary);
+    border: 2px solid #fff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.was-thumb-change-btn:hover { background: var(--was-red); }
+
+.was-thumb-change-btn svg {
+    width: 10px;
+    height: 10px;
+    display: block;
+    flex-shrink: 0;
+}
+
+.was-child-edit-form {
+    border-top: 1px solid var(--was-border);
+    margin-top: 1rem;
+    padding-top: 1.25rem;
+}
+
+.was-child-edit-section {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--was-text-muted);
+    margin: 1.25rem 0 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--was-border);
+}
+
+.was-child-edit-section:first-child { margin-top: 0; }
+
+.was-med-row--compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.was-med-row--compact .was-med-q {
+    margin: 0;
+    font-size: 0.875rem;
+    flex: 1;
+    line-height: 1.4;
+}
+
+.was-consent-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 0.9rem;
+}
+
+.stars-tagline {
+    font-size: 0.78rem;
+    color: var(--was-on-dark-muted);
+    margin: 0;
+    font-style: italic;
+    letter-spacing: 0.01em;
+}
+
+/* ── v2.2.0: Mobile optimisation ─────────────────────────────────────────── */
+
+/* Nav tabs — horizontal scroll on mobile */
+.was-portal-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    white-space: nowrap;
+}
+
+.was-portal-nav::-webkit-scrollbar { display: none; }
+
+.was-portal-nav__tab {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 44px;
+}
+
+/* ── Mobile pill tabs — outline pills on the carbon tray ───────────────────── */
+@media (max-width: 700px) {
+
+    .was-portal-nav-wrap { margin-bottom: 1.25rem; }
+    .was-portal-nav {
+        gap: 0.4rem;
+        padding: 0.6rem 0.6rem 0.7rem;
+        background: var(--was-carbon);
+        border-radius: 0 0 var(--was-radius-md) var(--was-radius-md);
+        margin-bottom: 0;
+    }
+
+    .was-portal-nav__tab {
+        padding: 0.45rem 0.9rem;
+        border-radius: var(--was-radius-pill);
+        font-size: 0.82rem;
+        font-weight: 500;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,.22);
+        border-bottom: 1px solid rgba(255,255,255,.22);
+        color: var(--was-on-dark-muted);
+        min-height: 36px;
+        text-decoration: none;
+        transition: background var(--was-t-fast) var(--was-ease), color var(--was-t-fast) var(--was-ease), border-color var(--was-t-fast) var(--was-ease);
+    }
+
+    .was-portal-nav__tab:hover {
+        background: rgba(255,255,255,.08);
+        color: var(--was-on-dark);
+        text-decoration: none;
+    }
+
+    .was-portal-nav__tab.was-active {
+        background: var(--was-red);
+        color: #fff;
+        border-color: var(--was-red);
+        font-weight: 600;
+    }
+}
+
+@media (max-width: 600px) {
+
+    /* Portal header — stays compact; sign-out is pinned top-right */
+    .was-portal-header { padding: 0.9rem 1rem 1rem; }
+    .was-portal-header__left { padding-right: 5.5rem; }
+
+    /* Cards */
+    .was-card {
+        padding: 1rem;
+        border-radius: 10px;
+    }
+
+    /* Player cards */
+    .was-player-card__header {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .was-player-card__name {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .was-player-card__actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        justify-content: flex-start;
+    }
+
+    /* Icon-only chips on small screens (labels shown in tooltips) */
+    .was-chip i { display: none; }
+    .was-chip { padding: 6px; border-radius: 50%; }
+
+    .was-addteam-panel { margin: 0 0.9rem 0.9rem; }
+    .was-addteam-row { flex-wrap: wrap; }
+    .was-addteam-row .was-addteam-select { flex: 1 1 100%; }
+
+    /* Field rows stack on mobile */
+    .was-field-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Treasurer stats */
+    .was-treas-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Treasurer table — card style on mobile */
+    .was-treas-table {
+        display: block;
+    }
+
+    .was-treas-table thead { display: none; }
+
+    .was-treas-table tbody { display: block; }
+
+    .was-treas-table tr {
+        display: block;
+        border: 1px solid var(--was-border);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        padding: 0.75rem;
+        background: #fff;
+    }
+
+    .was-treas-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.3rem 0;
+        border: none;
+        font-size: 0.85rem;
+    }
+
+    /* Only label cells that actually carry a data-label — tables without them
+       (Players panel, Messages history) must not get phantom 90px spacers. */
+    .was-treas-table td[data-label]:before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--was-text-muted);
+        min-width: 90px;
+    }
+
+    /* Social media table — card style on mobile */
+    .was-smo-table { display: block; }
+    .was-smo-table thead { display: none; }
+    .was-smo-table tbody { display: block; }
+
+    .was-smo-table tr {
+        display: grid;
+        grid-template-columns: 56px 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 0.3rem 0.75rem;
+        border: 1px solid var(--was-border);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        padding: 0.75rem;
+        align-items: center;
+    }
+
+    /* Map by the semantic column classes — the table renders name FIRST, photo
+       second, so nth-child placement put everything in the wrong slot. */
+    .was-smo-table td.was-smo-col-photo { grid-column: 1; grid-row: 1 / 3; width: auto; }
+    .was-smo-table td.was-smo-col-name  { grid-column: 2; grid-row: 1; font-weight: 600; min-width: 0; }
+    .was-smo-table td.was-smo-col-team  { grid-column: 3; grid-row: 1; font-size: 0.8rem; color: var(--was-text-muted); min-width: 0; }
+    .was-smo-table td.was-smo-col-consent {
+        grid-row: 2;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.8rem;
+        width: auto;
+        text-align: left;
+    }
+    .was-smo-table td:nth-child(4):before { content: "Photo: "; font-size: 0.75rem; color: var(--was-text-muted); }
+    .was-smo-table td:nth-child(5):before { content: "Legal: "; font-size: 0.75rem; color: var(--was-text-muted); }
+
+    /* Players panel (#was-reg-table borrows .was-treas-table): its own card
+       layout — photo left, details stacked right. */
+    #was-reg-table tr {
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 0.3rem 0.75rem;
+        align-items: start;
+    }
+    #was-reg-table td {
+        display: block;
+        padding: 0;
+        border: none;
+        font-size: 0.85rem;
+        min-width: 0;
+    }
+    #was-reg-table td.was-reg-photo-cell { grid-column: 1; grid-row: 1 / 6; width: auto; padding-top: 2px; }
+    #was-reg-table td:not(.was-reg-photo-cell) { grid-column: 2; }
+    #was-reg-table .was-reg-photo { width: 48px; height: 48px; }
+
+    /* Medical rows */
+    .was-med-row--compact {
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .was-consent-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
+    }
+
+    /* Buttons full width */
+    .was-btn--full-mobile { width: 100%; justify-content: center; }
+
+    /* Profile form */
+    .was-account-card--wide { padding: 1rem; }
+}
+
+@media (max-width: 380px) {
+    .was-portal-nav__tab { padding: 0.6rem 0.75rem; font-size: 0.78rem; }
+    .was-treas-stats { grid-template-columns: 1fr; }
+    .was-smo-table tr { grid-template-columns: 48px 1fr; }
+    .was-smo-table td.was-smo-col-team { display: none; } /* hide team on very small screens */
+    .was-smo-table td.was-smo-col-photo { grid-row: 1 / 4; }
+    .was-smo-table td:nth-child(4) { grid-column: 2; grid-row: 2; }
+    .was-smo-table td:nth-child(5) { grid-column: 2; grid-row: 3; }
+}
+
+/* ── v2.2.4: Treasurer clickable tiles ───────────────────────────────────── */
+
+.was-treas-stat[data-filter] {
+    cursor: pointer;
+    transition: box-shadow var(--was-t-fast) var(--was-ease), transform var(--was-t-fast) var(--was-ease);
+    user-select: none;
+}
+
+.was-treas-stat[data-filter]:hover {
+    box-shadow: var(--was-shadow-md);
+    transform: translateY(-2px);
+}
+
+.was-treas-stat--active,
+.was-treas-stat[data-filter].was-treas-stat--active {
+    box-shadow: 0 0 0 2px var(--was-accent);
+    background: var(--was-carbon-2);
+}
+
+.was-treas-controls {
+    margin-bottom: 1rem;
+}
+
+.was-treas-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.was-treas-table tr.was-hidden { display: none; }
+
+.stars-support-link {
+    color: var(--was-on-dark-faint);
+    font-size: 0.78rem;
+    text-decoration: none;
+}
+
+.stars-support-link:hover { color: var(--was-on-dark); text-decoration: underline; }
+
+/* ── ASTRO Portal logo ────────────────────────────────────────────────────── */
+
+.astro-portal-logo-wrap {
+    margin-bottom: 0.5rem;
+}
+
+.astro-portal-logo {
+    max-height: 60px;
+    width: auto;
+    display: block;
+    border-radius: 6px;
+}
+
+.astro-account-logo {
+    max-height: 72px;
+    width: auto;
+    display: block;
+    margin: 0 auto 1.25rem;
+}
+
+@media (max-width: 600px) {
+    .astro-portal-logo { max-height: 44px; }
+    .astro-account-logo { max-height: 56px; }
+}
+
+/* ── v2.3.0: Coach team header improvements ──────────────────────────────── */
+
+.was-team-logo-hover-wrap {
+    position: relative;
+    width: 152px;
+    height: 152px;
+    flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.was-team-logo {
+    width: 152px;
+    height: 152px;
+    object-fit: contain;
+    border-radius: 14px;
+    display: block;
+    background: rgba(255,255,255,0.1);
+    padding: 6px;
+}
+
+.was-team-logo-placeholder {
+    width: 152px;
+    height: 152px;
+    border-radius: 14px;
+    border: 2px dashed rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.05);
+}
+
+.was-team-logo-hover-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+}
+
+.was-team-logo-hover-wrap:hover .was-team-logo-hover-overlay {
+    opacity: 1;
+}
+
+/* Squad count — rounded square (squircle) so "PLAYERS" fits cleanly inside */
+.was-team-player-count {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 74px;
+    padding: 9px 14px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.25);
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.was-team-player-count__num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+}
+
+.was-team-player-count__label {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 1px;
+}
+
+@media (max-width: 600px) {
+    .was-team-logo-hover-wrap,
+    .was-team-logo,
+    .was-team-logo-placeholder { width: 112px; height: 112px; }
+    .was-team-player-count { min-width: 66px; padding: 7px 11px; }
+    .was-team-player-count__num { font-size: 1.3rem; }
+}
+
+
+/* ── Team News ─────────────────────────────────────────────────────────────── */
+
+/* Coach submission + review shared bits */
+.was-news-submit-card { margin-top: 1.25rem; }
+
+.was-news-photo-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+.was-news-preview-thumb,
+.was-news-photo img {
+    width: 84px;
+    height: 84px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--was-border);
+    display: block;
+}
+.was-news-photo { position: relative; }
+.was-news-photo-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: var(--was-red);
+    color: #fff;
+    font-size: 14px;
+    line-height: 20px;
+    cursor: pointer;
+    padding: 0;
+}
+.was-news-photo.is-removed img { opacity: 0.3; filter: grayscale(1); }
+.was-news-photo.is-removed .was-news-photo-remove { background: var(--was-neutral-ink); }
+
+.was-news-mine-list { list-style: none; margin: 0; padding: 0; }
+.was-news-mine-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--was-border);
+}
+.was-news-mine-item:last-child { border-bottom: none; }
+.was-news-mine-title { font-weight: 600; }
+.was-news-mine-meta { color: var(--was-text-muted); font-size: 0.85rem; }
+.was-news-mine-reason {
+    flex-basis: 100%;
+    font-size: 0.85rem;
+    color: var(--was-text-muted);
+    font-style: italic;
+}
+
+/* Review cards */
+.was-news-review-card, .was-news-fb-card { margin-bottom: 1rem; }
+.was-news-review-meta {
+    font-size: 0.88rem;
+    color: var(--was-text-muted);
+    margin-bottom: 0.75rem;
+}
+.was-news-review-meta strong { color: inherit; }
+.was-news-review-actions, .was-news-fb-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0.75rem;
+    align-items: center;
+}
+.was-news-reject-panel { margin-top: 0.75rem; }
+.was-news-reject-panel .was-btn { margin-top: 8px; }
+.was-news-fb-tools summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Public team pages: grid */
+.was-team-pages { max-width: 1100px; margin: 0 auto; }
+.was-teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 1rem 0;
+}
+.was-team-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 18px 12px;
+    background: var(--was-card-bg);
+    border: 1px solid var(--was-border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    text-align: center;
+    transition: transform var(--was-t-fast) var(--was-ease), box-shadow var(--was-t-fast) var(--was-ease);
+}
+.was-team-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--was-shadow-md);
+}
+.was-team-tile__logo {
+    width: 100%;
+    max-width: 150px;
+    height: 150px;
+    object-fit: contain;
+    border-radius: 20px;
+    overflow: hidden;
+}
+.was-team-tile__logo--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--was-neutral-bg);
+    color: var(--was-neutral-ink);
+}
+.was-team-tile__name { font-weight: 700; line-height: 1.3; font-size: 1.02rem; }
+.was-team-tile__pill {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: var(--was-radius-pill);
+    background: var(--was-red);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    transition: background var(--was-t-fast) var(--was-ease);
+}
+.was-team-tile:hover .was-team-tile__pill { background: var(--was-red-dark); }
+
+/* Public team pages: news list */
+.was-news-back {
+    display: inline-block;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--was-red);
+}
+/* Team profile header — carbon banner matching the portal chrome */
+.was-news-team-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 1.5rem;
+    padding: 1.1rem 1.35rem calc(1.1rem + 3px);
+    background: var(--was-chrome-grad);
+    border-radius: var(--was-radius-md);
+    box-shadow: var(--was-shadow-dark);
+    overflow: hidden;
+}
+.was-news-team-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--was-accent-grad);
+}
+.was-news-team-logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    background: rgba(255,255,255,.08);
+    border-radius: var(--was-radius-md);
+    padding: 5px;
+    flex: none;
+}
+.was-news-team-title { margin: 0; color: var(--was-on-dark); }
+.was-news-team-age {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--was-accent);
+}
+.was-news-team-header .was-profile-league { color: var(--was-accent); }
+.was-news-team-header .was-profile-league svg { color: var(--was-accent); }
+.was-news-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+.was-news-card {
+    background: var(--was-card-bg);
+    border: 1px solid var(--was-border);
+    border-radius: var(--was-radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--was-shadow-sm);
+    transition: transform var(--was-t-fast) var(--was-ease), box-shadow var(--was-t-fast) var(--was-ease);
+}
+.was-news-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--was-shadow-md);
+}
+.was-news-card__thumb img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
+.was-news-card__body { padding: 14px 16px; }
+.was-news-card__title { margin: 0 0 4px; font-size: var(--was-fs-lg); }
+.was-news-card__title a { text-decoration: none; color: inherit; }
+.was-news-card__date {
+    font-size: 0.8rem;
+    color: var(--was-text-muted);
+    display: block;
+    margin-bottom: 6px;
+}
+.was-news-card__excerpt { margin: 0 0 8px; font-size: 0.92rem; }
+.was-news-empty { color: var(--was-text-muted); font-style: italic; }
+.was-news-pagination {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 1.25rem;
+}
+.was-news-pagination__info { font-size: 0.85rem; color: var(--was-text-muted); }
+
+
+/* ── Team Profiles + club news feed (2.14.0) ──────────────────────────────── */
+
+/* Profile page extras */
+.was-profile-league {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--was-red);
+}
+.was-profile-desc {
+    background: var(--was-card-bg);
+    border: 1px solid var(--was-border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+}
+.was-profile-news-heading {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: var(--was-fs-lg);
+    font-weight: 700;
+    color: var(--was-carbon);
+    margin: 0 0 0.75rem;
+}
+.was-profile-news-heading::before {
+    content: "";
+    width: 4px;
+    height: 1.1em;
+    border-radius: 2px;
+    background: var(--was-accent-grad);
+    flex: none;
+}
+
+/* Coach form: compact one-line policy note (banner default makes <strong> a block) */
+.was-news-policy-note { padding: 0.6rem 0.9rem; }
+.was-news-policy-note strong { display: inline; margin: 0; }
+
+/* Coach portal: edit team profile */
+.was-team-profile-edit { margin: 0; }
+.was-team-block .was-profile-form { padding: 0.85rem 1.25rem 1.05rem; margin-top: 0; }
+.was-team-profile-edit .was-profile-form .was-btn { margin-right: 6px; }
+.was-team-block__titlewrap .was-profile-save-status { margin: 0; font-size: 0.72rem; }
+
+/* All-teams feed: masonry on desktop, single column on mobile */
+.was-team-news-feed { max-width: 1100px; margin: 0 auto; }
+.was-feed { column-gap: 16px; }
+@media (min-width: 1024px) { .was-feed { columns: 3; } }
+@media (min-width: 700px) and (max-width: 1023px) { .was-feed { columns: 2; } }
+@media (max-width: 699px) {
+    .was-feed { columns: 1; max-width: 520px; margin: 0 auto; }
+}
+.was-feed-card {
+    display: inline-block;
+    width: 100%;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    margin-bottom: 16px;
+    background: var(--was-card-bg);
+    border: 1px solid var(--was-border);
+    border-radius: var(--was-radius-md);
+    overflow: hidden;
+    box-shadow: var(--was-shadow-sm);
+    transition: transform var(--was-t-fast) var(--was-ease), box-shadow var(--was-t-fast) var(--was-ease);
+}
+.was-feed-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--was-shadow-md);
+}
+.was-feed-card__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+}
+.was-feed-card__badge {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+.was-feed-card__meta { display: flex; flex-direction: column; line-height: 1.3; }
+.was-feed-card__team {
+    font-weight: 700;
+    font-size: 0.92rem;
+    text-decoration: none;
+    color: inherit;
+}
+a.was-feed-card__team:hover { color: var(--was-red); }
+.was-feed-card__date { font-size: 0.78rem; color: var(--was-text-muted); }
+.was-feed-card__thumb img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+.was-feed-card__body { padding: 12px 14px 14px; }
+.was-feed-card__title { margin: 0 0 6px; font-size: var(--was-fs-lg); }
+.was-feed-card__title a { text-decoration: none; color: inherit; }
+.was-feed-card__title a:hover { color: var(--was-red); }
+.was-feed-card__excerpt { margin: 0 0 8px; font-size: 0.9rem; line-height: 1.5; }
+
+/* ── v2.18: Carbon & Gold shared primitives ───────────────────────────────── */
+
+/* Gate screens (onboarding done / no access) */
+.was-gate {
+    position: relative;
+    max-width: 580px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--was-card-bg);
+    border: 1px solid var(--was-border);
+    border-radius: var(--was-radius-md);
+    box-shadow: var(--was-shadow-sm);
+    overflow: hidden;
+}
+.was-gate::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--was-accent-grad);
+}
+.was-gate--center { text-align: center; }
+.was-gate__icon  { font-size: 2.5rem; margin-bottom: 1rem; }
+.was-gate__title { margin: 0 0 0.75rem; font-weight: 700; }
+.was-gate__text  { color: var(--was-text-muted); line-height: 1.6; margin: 0 0 1rem; }
+
+/* Utility primitives (Phase D) */
+.was-card-title {
+    font-size: var(--was-fs-md);
+    font-weight: 700;
+    color: var(--was-carbon);
+    margin: 0 0 0.75rem;
+}
+.was-hint       { font-weight: 400; font-size: var(--was-fs-sm); color: var(--was-text-muted); }
+.was-text-muted { color: var(--was-text-muted); }
+.was-center     { text-align: center; }
+.was-upper      { text-transform: uppercase; }
+.was-m-0  { margin: 0 !important; }
+.was-mt-0 { margin-top: 0 !important; }
+.was-mt-1 { margin-top: 0.75rem !important; }
+.was-mt-2 { margin-top: 1.5rem !important; }
+.was-mb-1 { margin-bottom: 0.75rem !important; }
+.was-mb-2 { margin-bottom: 1.5rem !important; }
+.was-btn-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 1.25rem;
+}
+
+/* Banner icons align themselves — no per-template inline styles needed */
+.was-smo-banner > svg { flex-shrink: 0; margin-top: 2px; }
+
+/* "Nothing here" empty state */
+.was-empty-state {
+    padding: 1.25rem;
+    text-align: center;
+    color: var(--was-text-muted);
+    background: var(--was-bg);
+    border: 1px dashed var(--was-border);
+    border-radius: var(--was-radius-md);
+    font-size: 0.88rem;
+}
+
+/* ── Committee: Interest List (waiting list) ──────────────────────────────── */
+
+.was-int-intro {
+    margin: 0 0 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--was-text-muted);
+}
+
+.was-int-demand {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+}
+
+.was-int-demand__pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--was-radius-pill);
+    background: var(--was-carbon);
+    color: var(--was-on-dark);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.was-int-demand__pill i {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 0.74rem;
+    color: var(--was-warn);
+}
+
+.was-int-demand__empty {
+    font-size: 0.875rem;
+    font-style: italic;
+    color: var(--was-text-muted);
+}
+
+.was-reg-controls #was-int-search        { flex: 1 1 240px; max-width: 340px; }
+.was-reg-controls #was-int-status-filter { flex: 0 1 260px; }
+
+.was-int-manage-col { min-width: 230px; }
+
+.was-int-freetext {
+    max-width: 190px;
+    font-size: 0.82rem;
+    color: var(--was-text-muted);
+}
+
+.was-int-manage .was-int-notes {
+    width: 100%;
+    margin-top: 6px;
+    font-size: 0.82rem;
+}
+
+.was-int-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+#was-int-table td { vertical-align: top; }
+
+/* Phones: the 7-column table becomes one card per entry. */
+@media (max-width: 782px) {
+
+    #was-int-table,
+    #was-int-table tbody,
+    #was-int-table tr,
+    #was-int-table td { display: block; width: 100%; box-sizing: border-box; }
+
+    #was-int-table thead { display: none; }
+
+    #was-int-table tr {
+        border: 1px solid var(--was-border);
+        border-radius: var(--was-radius);
+        background: var(--was-card-bg);
+        padding: 0.35rem 0.25rem;
+        margin-bottom: 0.85rem;
+    }
+
+    #was-int-table td {
+        border-bottom: 1px solid var(--was-border);
+        padding: 0.5rem 0.85rem;
+    }
+
+    #was-int-table tr td:last-child { border-bottom: none; }
+
+    #was-int-table td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 3px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--was-text-muted);
+    }
+
+    .was-int-freetext { max-width: none; }
+    .was-int-manage-col { min-width: 0; }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    [class*="was-"],
+    [class*="was-"]::before,
+    [class*="was-"]::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}

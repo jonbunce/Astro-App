@@ -1,0 +1,94 @@
+/* Wombourne Allstars Registration — Admin Styles */
+
+.was-admin-wrap { max-width: 1200px; }
+
+/* Stats grid */
+.was-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+.was-stat-card {
+    background: #fff;
+    border: 1px solid #dde1e7;
+    border-radius: 8px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.was-stat-card--warn  { border-color: #f9a825; background: #fffde7; }
+.was-stat-card--danger{ border-color: #e53935; background: #ffebee; }
+.was-stat-num  { display: block; font-size: 2.2rem; font-weight: 700; color: #14161a; }
+.was-stat-label{ display: block; font-size: 0.8rem; color: #5a6473; margin-top: 0.2rem; }
+
+/* Badges */
+.was-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+.was-badge--green  { background: #e8f5e9; color: #2e7d32; }
+.was-badge--red    { background: #ffebee; color: #c62828; }
+.was-badge--yellow { background: #fffde7; color: #f57f17; }
+.was-badge--blue   { background: #e3f2fd; color: #1565c0; }
+.was-badge--grey   { background: #f5f5f5; color: #616161; }
+
+/* Filter bar */
+.was-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 1rem 0;
+}
+.was-filter-bar select,
+.was-filter-bar input[type="search"] {
+    padding: 4px 8px;
+    border: 1px solid #dde1e7;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+/* Players table */
+.was-players-table td { vertical-align: middle; }
+
+/* v2.1 Admin additions */
+.was-tc { text-align: center; }
+.was-consent-tick  { color: #2e7d32; font-size: 1.2rem; font-weight: 700; }
+.was-consent-cross { color: #c62828; font-size: 1.2rem; font-weight: 700; }
+.was-consent-grey  { color: #999; }
+.was-admin-tick    { color: #2e7d32; font-size: 1.1rem; margin-left: 6px; }
+.was-admin-cross   { color: #c62828; font-size: 1.1rem; margin-left: 6px; }
+
+.was-bulk-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    margin-bottom: 8px;
+}
+.was-bulk-bar select,
+.was-bulk-bar input { height: 30px; }
+.was-bulk-count { color: #888; font-size: 0.85rem; }
+
+.was-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.was-edit-col .postbox { margin-bottom: 1rem; }
+.was-edit-col .postbox .hndle { padding: 8px 12px; font-size: 14px; }
+.was-edit-col .postbox .inside { padding: 12px; }
+.was-edit-col .form-table th { width: 140px; padding: 8px 10px; }
+.was-edit-col .form-table td { padding: 6px 10px; }
+
+@media (max-width: 900px) {
+    .was-edit-grid { grid-template-columns: 1fr; }
+}
+
+.was-badge--purple { background: #f3e5f5; color: #6a1b9a; }
