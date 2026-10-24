@@ -415,9 +415,7 @@ add_action( 'admin_menu', array( 'WAS_Admin', 'register_menus' ) );
 
 // Admin AJAX actions
 add_action( 'wp_ajax_was_hard_delete_player', array( 'WAS_Admin', 'ajax_hard_delete' ) );
-add_action( 'wp_ajax_was_gc_debug',           array( 'WAS_Admin', 'ajax_gc_debug' ) );
 add_action( 'wp_ajax_was_run_sync',           array( 'WAS_Admin', 'ajax_run_sync' ) );
-add_action( 'wp_ajax_was_gc_test_payments',    array( 'WAS_Admin', 'ajax_gc_test_payments' ) );
 add_action( 'wp_ajax_was_set_custom_subs',     array( 'WAS_Admin', 'ajax_set_custom_subs' ) );
 add_action( 'wp_ajax_was_set_supplement',      array( 'WAS_Admin', 'ajax_set_supplement' ) );
 add_action( 'wp_ajax_was_preview_payment_day', array( 'WAS_Admin', 'ajax_preview_payment_day' ) );

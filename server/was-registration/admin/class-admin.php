@@ -372,88 +372,13 @@ class WAS_Admin {
         wp_send_json_success( array( 'message' => $msg ) );
     }
 
-    // ── GC API test — tries different URL formats to find what works ──────────────
-
-    public static function ajax_gc_test_payments() {
-        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error();
-        $mandate = sanitize_text_field( $_POST['mandate'] ?? '' );
-        if ( ! $mandate ) wp_send_json_error( array( 'message' => 'No mandate' ) );
-
-        $results = array();
-
-        // Try each URL format
-        $formats = array(
-            '1_mandate_limit'     => '/payments?mandate=' . urlencode($mandate) . '&limit=200',
-            '2_mandate_only'      => '/payments?mandate=' . urlencode($mandate),
-            '3_mandate_limit_50'  => '/payments?mandate=' . urlencode($mandate) . '&limit=50',
-            '4_no_filters'        => '/payments?limit=5',
-            '5_subscription_list' => '/subscriptions?mandate=' . urlencode($mandate),
-        );
-
-        foreach ( $formats as $key => $url ) {
-            // Use wp_remote_get directly to test
-            if ( WAS_GoCardless::is_sandbox() ) {
-                $base = 'https://api-sandbox.gocardless.com';
-            } else {
-                $base = 'https://api.gocardless.com';
-            }
-            $api_key = get_option('was_gc_sandbox_api_key', '');
-            $response = wp_remote_get( $base . $url, array(
-                'headers' => array(
-                    'Authorization'      => 'Bearer ' . $api_key,
-                    'GoCardless-Version' => '2015-07-06',
-                    'Accept'             => 'application/json',
-                ),
-                'timeout' => 15,
-            ) );
-            if ( is_wp_error( $response ) ) {
-                $results[$key] = 'WP_Error: ' . $response->get_error_message();
-            } else {
-                $code = wp_remote_retrieve_response_code( $response );
-                $body = json_decode( wp_remote_retrieve_body( $response ), true );
-                $results[$key] = array(
-                    'http' => $code,
-                    'url'  => $url,
-                    'data' => $code === 200
-                        ? array( 'count' => count($body[array_keys($body)[0]] ?? []) )
-                        : ( $body['error']['message'] ?? 'unknown' ),
-                );
-            }
-        }
-
-        wp_send_json_success( $results );
-    }
-
     // ── Manual GC sync trigger ─────────────────────────────────────────────────
 
     public static function ajax_run_sync() {
+        check_ajax_referer( 'was_nonce', 'nonce' );
         if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error();
         do_action( 'was_daily_gc_sync' );
         wp_send_json_success( array( 'message' => 'Sync completed at ' . current_time('H:i:s') ) );
-    }
-
-    // ── GC Debug ───────────────────────────────────────────────────────────────
-
-    public static function ajax_gc_debug() {
-        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error();
-        $last       = get_transient( 'was_gc_last_error' );
-        $next_cron  = wp_next_scheduled( 'was_daily_gc_sync' );
-        $last_sync  = get_option( 'was_last_gc_sync', 'never' );
-        wp_send_json_success( array(
-            'last_error'    => $last ?: 'none stored',
-            'sandbox_mode'  => WAS_GoCardless::is_sandbox() ? 'yes' : 'no',
-            'api_key_set'   => get_option( WAS_GoCardless::is_sandbox() ? 'was_gc_sandbox_api_key' : 'was_gc_live_api_key' ) ? 'yes' : 'no',
-            'wp_http_test'  => self::test_wp_http(),
-            'last_sync'     => $last_sync,
-            'next_cron'     => $next_cron ? date( 'Y-m-d H:i:s', $next_cron ) : 'not scheduled',
-        ) );
-    }
-
-    private static function test_wp_http() {
-        // Quick test to see if wp_remote_get works at all
-        $r = wp_remote_get( 'https://api-sandbox.gocardless.com', array( 'timeout' => 10 ) );
-        if ( is_wp_error( $r ) ) return 'WP_Error: ' . $r->get_error_message();
-        return 'HTTP ' . wp_remote_retrieve_response_code( $r );
     }
 
     // ── Dashboard ──────────────────────────────────────────────────────────────
