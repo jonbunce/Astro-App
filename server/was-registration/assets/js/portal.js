@@ -110,8 +110,15 @@
                 occupation_category: $('#was-reg-occ').val(),
                 employer_name:       $('#was-reg-employer').val().trim(),
             }, function (res) {
-                if (res.success) {
+                if (res.success && res.data.redirect) {
                     window.location.href = res.data.redirect;
+                } else if (res.success) {
+                    // Account created, but the email address must be confirmed first:
+                    // show the "check your email" message in place of the form.
+                    $btn.closest('.was-account-card').children()
+                        .not('.astro-login-logo-wrap, #was-reg-success, .was-account-switch').hide();
+                    $('#was-reg-success').html(res.data.message).show();
+                    $('html, body').animate({ scrollTop: $('#was-reg-success').offset().top - 80 }, 300);
                 } else {
                     $err.html(res.data.message).show();
                     $btn.prop('disabled', false).find('.was-btn-label').show();

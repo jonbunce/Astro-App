@@ -17,6 +17,12 @@ class WAS_Accounts {
         add_action( 'wp_ajax_was_do_logout',          array( __CLASS__, 'ajax_logout' ) );
         add_action( 'wp_ajax_was_update_profile',     array( __CLASS__, 'ajax_update_profile' ) );
 
+        // Email confirmation: the emailed link works signed in or out (admin-ajax is
+        // never page-cached); "send it again" is for signed-in accounts only.
+        add_action( 'wp_ajax_nopriv_was_verify_email', array( __CLASS__, 'ajax_verify_email' ) );
+        add_action( 'wp_ajax_was_verify_email',        array( __CLASS__, 'ajax_verify_email' ) );
+        add_action( 'wp_ajax_was_resend_verification', array( __CLASS__, 'ajax_resend_verification' ) );
+
         // Point every "lost password" link (ours, the theme's, WooCommerce's) at the
         // branded ASTRO reset page rather than the WordPress / WooCommerce screens.
         add_filter( 'lostpassword_url', array( __CLASS__, 'filter_lostpassword_url' ), 999 );
@@ -76,6 +82,8 @@ class WAS_Accounts {
     public static function render_login( $atts ) {
         ob_start();
         $redirect = sanitize_url( $_GET['redirect_to'] ?? home_url( '/account-portal/' ) );
+        // Back from an email-confirmation link while signed out (see ajax_verify_email).
+        $verify_notice = ! empty( $_GET['was_verified'] ) ? 'ok' : ( ! empty( $_GET['was_verify_error'] ) ? 'invalid' : '' );
         include WAS_PATH . 'templates/account-login.php';
         return ob_get_clean();
     }
@@ -154,6 +162,11 @@ class WAS_Accounts {
         }
 
         reset_password( $user, $pass );
+
+        // The reset link was emailed, so using it proves this person owns the inbox —
+        // the account can now be linked to a family record with the same email address.
+        self::mark_email_verified( $user );
+
         wp_set_auth_cookie( $user->ID, true );
 
         wp_send_json_success( array(
@@ -207,7 +220,7 @@ class WAS_Accounts {
         remove_filter( 'wp_mail_content_type', array( __CLASS__, 'html_content_type' ) );
     }
 
-    private static function send_welcome_email( $email, $first_name ) {
+    private static function send_welcome_email( $email, $first_name, $verify_url = '' ) {
         $club     = get_bloginfo( 'name' );
         $portal   = home_url( '/account-portal/' );
         $register = home_url( '/registrations-unified/' );
@@ -234,6 +247,12 @@ class WAS_Accounts {
       <p style="text-align:center;margin:22px 0;">
         <a href="<?php echo esc_url( $portal ); ?>" style="display:inline-block;background:#C8102E;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 28px;border-radius:8px;">Go to my ASTRO Portal</a>
       </p>
+      <?php if ( $verify_url ) : ?>
+      <p style="margin:0 0 10px;">Please also take a moment to confirm your email address &mdash; it helps us keep your family&rsquo;s details safe:</p>
+      <p style="text-align:center;margin:0 0 22px;">
+        <a href="<?php echo esc_url( $verify_url ); ?>" style="display:inline-block;background:#ffffff;color:#C8102E;text-decoration:none;font-weight:700;padding:10px 24px;border-radius:8px;border:2px solid #C8102E;">Confirm my email address</a>
+      </p>
+      <?php endif; ?>
       <p style="margin:16px 0 0;font-size:13px;color:#5c6470;">The name and phone number on your account will be used as your child's first emergency contact &mdash; you can add a second, alternative contact when you register each child.</p>
     </div>
     <div style="background:#fafbfc;padding:14px 24px;border-top:1px solid #eef0f3;color:#8a909a;font-size:11px;">
@@ -246,6 +265,50 @@ class WAS_Accounts {
 
         add_filter( 'wp_mail_content_type', array( __CLASS__, 'html_content_type' ) );
         wp_mail( $email, $subject, $body );
+        remove_filter( 'wp_mail_content_type', array( __CLASS__, 'html_content_type' ) );
+    }
+
+    /** Email a fresh confirmation link (see "Email confirmation" below). */
+    private static function send_verification_email( $user_id ) {
+        $user = get_userdata( $user_id );
+        if ( ! $user ) return;
+
+        $verify_url = self::new_verification_link( $user );
+
+        $club = get_bloginfo( 'name' );
+        $name = $user->first_name ? $user->first_name : $user->display_name;
+
+        $subject = $club . ' — please confirm your email address';
+
+        ob_start(); ?>
+<div style="background:#f4f5f7;padding:24px 12px;font-family:'Segoe UI',Arial,sans-serif;">
+  <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e6e8ec;">
+    <div style="background:#14161a;padding:20px 24px;">
+      <div style="font-size:22px;font-weight:800;letter-spacing:1px;color:#ffffff;">
+        <span style="color:#E39A00;">&#9733;</span> <span style="color:#C8102E;">A</span>STRO
+      </div>
+      <div style="color:#c9ccd2;font-size:12px;margin-top:3px;"><?php echo esc_html( $club ); ?></div>
+    </div>
+    <div style="padding:24px;color:#2a2d33;font-size:15px;line-height:1.55;">
+      <p style="margin:0 0 12px;">Hi <?php echo esc_html( $name ); ?>,</p>
+      <p style="margin:0 0 16px;">Please confirm that this is your email address so we can link your family&rsquo;s club registrations to your ASTRO account. We ask for this to keep children&rsquo;s details safe.</p>
+      <p style="text-align:center;margin:22px 0;">
+        <a href="<?php echo esc_url( $verify_url ); ?>" style="display:inline-block;background:#C8102E;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 28px;border-radius:8px;">Confirm my email address</a>
+      </p>
+      <p style="margin:0 0 6px;font-size:13px;color:#5c6470;">If the button doesn&rsquo;t work, copy and paste this link into your browser:</p>
+      <p style="margin:0 0 16px;font-size:12px;color:#1f6fb2;word-break:break-all;"><?php echo esc_url( $verify_url ); ?></p>
+      <p style="margin:16px 0 0;font-size:13px;color:#5c6470;">This link works for 48 hours. If you didn&rsquo;t create an ASTRO account you can safely ignore this email &mdash; nothing will be linked and no details will be shared.</p>
+    </div>
+    <div style="background:#fafbfc;padding:14px 24px;border-top:1px solid #eef0f3;color:#8a909a;font-size:11px;">
+      <?php echo esc_html( $club ); ?> &middot; Built for our stars.
+    </div>
+  </div>
+</div>
+        <?php
+        $body = ob_get_clean();
+
+        add_filter( 'wp_mail_content_type', array( __CLASS__, 'html_content_type' ) );
+        wp_mail( $user->user_email, $subject, $body );
         remove_filter( 'wp_mail_content_type', array( __CLASS__, 'html_content_type' ) );
     }
 
@@ -317,42 +380,51 @@ class WAS_Accounts {
 
         was_add_role( $user_id, 'parent' );
 
-        // Create guardian record immediately at signup
         global $wpdb;
-        $existing = WAS_Database::get_guardian_by_email( $email );
+        $existing = self::unlinked_guardian_by_email( $email );
         if ( $existing ) {
-            $wpdb->update(
-                "{$wpdb->prefix}was_guardians",
-                array(
-                    'wp_user_id'          => $user_id,
-                    'first_name'          => $first,
-                    'last_name'           => $last,
-                    'telephone'           => $tel,
-                    'address_line1'       => $addr,
-                    'postcode'            => $postcode,
-                    'occupation_category' => $occ_cat,
-                    'employer_name'       => $employer,
-                ),
-                array( 'id' => $existing->id )
-            );
-        } else {
-            $wpdb->insert(
-                "{$wpdb->prefix}was_guardians",
-                array(
-                    'wp_user_id'          => $user_id,
-                    'first_name'          => $first,
-                    'last_name'           => $last,
-                    'email'               => $email,
-                    'telephone'           => $tel,
-                    'address_line1'       => $addr,
-                    'postcode'            => $postcode,
-                    'occupation_category' => $occ_cat,
-                    'employer_name'       => $employer,
-                )
-            );
+            // A family record (children, medical details, Direct Debits) already uses this
+            // email address. Don't link or change it until this new account proves it owns
+            // the inbox — otherwise anyone could sign up with a parent's email address and
+            // inherit their children's details. Keep the sign-up details aside (they only
+            // fill gaps in the record once confirmed) and email a confirmation link.
+            update_user_meta( $user_id, 'was_signup_details', array(
+                'first_name'          => $first,
+                'last_name'           => $last,
+                'telephone'           => $tel,
+                'address_line1'       => $addr,
+                'postcode'            => $postcode,
+                'occupation_category' => $occ_cat,
+                'employer_name'       => $employer,
+            ) );
+            self::send_verification_email( $user_id );
+
+            // Not signed in yet — the confirmation link comes first.
+            wp_send_json_success( array(
+                'message' => '<strong>Nearly there &mdash; please check your email.</strong> To keep your family&rsquo;s details safe we&rsquo;ve sent a link to <strong>' . esc_html( $email ) . '</strong> to confirm it&rsquo;s really you. Click it, then sign in and your account is ready. The link works for 48 hours &mdash; if it hasn&rsquo;t arrived in a few minutes, please check your spam / junk folder.',
+            ) );
         }
 
-        self::send_welcome_email( $email, $first );
+        // Create guardian record immediately at signup
+        $wpdb->insert(
+            "{$wpdb->prefix}was_guardians",
+            array(
+                'wp_user_id'          => $user_id,
+                'first_name'          => $first,
+                'last_name'           => $last,
+                'email'               => $email,
+                'telephone'           => $tel,
+                'address_line1'       => $addr,
+                'postcode'            => $postcode,
+                'occupation_category' => $occ_cat,
+                'employer_name'       => $employer,
+            )
+        );
+
+        // A brand-new family doesn't have to wait, but is still asked to confirm the address
+        // (the button is in the welcome email) so a record the club later adds under this
+        // email can be linked safely.
+        self::send_welcome_email( $email, $first, self::new_verification_link( get_userdata( $user_id ) ) );
 
         wp_set_auth_cookie( $user_id, false );
         wp_send_json_success( array(
@@ -390,6 +462,13 @@ class WAS_Accounts {
         }
 
         $guardian = self::current_guardian();
+
+        // An unconfirmed account whose email matches an existing family record: that record
+        // is linked once the email is confirmed, so don't create a duplicate one now.
+        if ( ! $guardian && self::verification_pending( $user_id ) ) {
+            self::maybe_send_verification_email( $user_id, 2 * DAY_IN_SECONDS );
+            wp_send_json_error( array( 'message' => "Please confirm your email address first — click the link we've emailed you. Your family's details will then appear here." ) );
+        }
 
         // If no guardian found, create one linked to this user
         if ( ! $guardian ) {
@@ -447,13 +526,191 @@ class WAS_Accounts {
             $user_id
         ) );
         if ( ! $guardian ) {
-            $user     = get_userdata( $user_id );
-            $guardian = WAS_Database::get_guardian_by_email( $user->user_email );
-            if ( $guardian ) {
-                $wpdb->update( "{$wpdb->prefix}was_guardians", array( 'wp_user_id' => $user_id ), array( 'id' => $guardian->id ) );
+            // Auto-link an unclaimed family record with the same email address — but only
+            // once this account has proved it owns that inbox (confirmation link or password
+            // reset). Otherwise anyone could sign up with a parent's email address and see
+            // their children's details.
+            $user = get_userdata( $user_id );
+            if ( $user && self::is_email_verified( $user_id ) ) {
+                $guardian = self::unlinked_guardian_by_email( $user->user_email );
+                if ( $guardian ) {
+                    $wpdb->update( "{$wpdb->prefix}was_guardians", array( 'wp_user_id' => $user_id ), array( 'id' => $guardian->id ) );
+                    $guardian->wp_user_id = $user_id;
+                }
             }
         }
         return $guardian;
+    }
+
+    // ── Email confirmation ──────────────────────────────────────────────────────
+    //
+    // Linking an account to an existing family record (children, medical details,
+    // payments) by email address is only safe once the account has proved it owns that
+    // inbox: by clicking the emailed confirmation link, or by completing a password reset.
+    // The confirmed address itself is stored (not just a flag), so changing the account's
+    // email later doesn't carry the proof over to an address that was never checked.
+
+    /** True once this account has confirmed it owns its current email address. */
+    public static function is_email_verified( $user_id ) {
+        $user = get_userdata( $user_id );
+        if ( ! $user || ! $user->user_email ) return false;
+        $verified = (string) get_user_meta( $user->ID, 'was_email_verified', true );
+        return $verified !== '' && $verified === strtolower( $user->user_email );
+    }
+
+    /** The oldest family record with this email address that no account has claimed yet. */
+    private static function unlinked_guardian_by_email( $email ) {
+        global $wpdb;
+        $email = sanitize_email( $email );
+        if ( ! $email ) return null;
+        return $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}was_guardians
+             WHERE email = %s AND ( wp_user_id IS NULL OR wp_user_id = 0 )
+             ORDER BY id ASC LIMIT 1",
+            $email
+        ) );
+    }
+
+    /**
+     * An account that hasn't confirmed its email, has no family record of its own, and
+     * whose email matches an unclaimed record. It sees a "please confirm your email"
+     * notice in the portal and can't create a second record for the same family.
+     */
+    public static function verification_pending( $user_id ) {
+        global $wpdb;
+        $user = get_userdata( $user_id );
+        if ( ! $user || self::is_email_verified( $user->ID ) ) return false;
+        $linked = $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}was_guardians WHERE wp_user_id = %d LIMIT 1",
+            $user->ID
+        ) );
+        if ( $linked ) return false;
+        return (bool) self::unlinked_guardian_by_email( $user->user_email );
+    }
+
+    /** A new single-use confirmation link, valid for 48 hours. Only a hash of it is stored. */
+    private static function new_verification_link( $user ) {
+        $token = wp_generate_password( 32, false );
+        update_user_meta( $user->ID, 'was_email_verify', array(
+            'hash'    => hash( 'sha256', $token ),
+            'email'   => strtolower( $user->user_email ),
+            'expires' => time() + 2 * DAY_IN_SECONDS,
+            'sent'    => time(),
+        ) );
+        return add_query_arg( array(
+            'action' => 'was_verify_email',
+            'u'      => $user->ID,
+            'k'      => $token,
+        ), admin_url( 'admin-ajax.php' ) );
+    }
+
+    /**
+     * Send a confirmation link unless one sent less than $min_gap seconds ago is still
+     * valid for the account's current address. Returns true if an email went out.
+     */
+    public static function maybe_send_verification_email( $user_id, $min_gap ) {
+        $user = get_userdata( $user_id );
+        if ( ! $user ) return false;
+        $pending = get_user_meta( $user->ID, 'was_email_verify', true );
+        if ( is_array( $pending )
+            && (int) ( $pending['expires'] ?? 0 ) > time()
+            && (int) ( $pending['sent'] ?? 0 ) > time() - $min_gap
+            && ( $pending['email'] ?? '' ) === strtolower( $user->user_email ) ) {
+            return false;
+        }
+        self::send_verification_email( $user->ID );
+        return true;
+    }
+
+    /** Record that this account owns its email address, then claim the family record. */
+    private static function mark_email_verified( $user ) {
+        update_user_meta( $user->ID, 'was_email_verified', strtolower( $user->user_email ) );
+        delete_user_meta( $user->ID, 'was_email_verify' );
+        self::link_guardian_by_email( $user );
+    }
+
+    /**
+     * Link a confirmed account to the unclaimed family record with its email address.
+     * What the club already holds (name, phone, address…) is kept; the sign-up form only
+     * fills fields that are empty.
+     */
+    private static function link_guardian_by_email( $user ) {
+        global $wpdb;
+        $already = $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}was_guardians WHERE wp_user_id = %d LIMIT 1",
+            $user->ID
+        ) );
+        $guardian = $already ? null : self::unlinked_guardian_by_email( $user->user_email );
+        if ( $guardian ) {
+            $data   = array( 'wp_user_id' => $user->ID );
+            $signup = get_user_meta( $user->ID, 'was_signup_details', true );
+            if ( is_array( $signup ) ) {
+                foreach ( array( 'first_name', 'last_name', 'telephone', 'address_line1', 'postcode', 'occupation_category', 'employer_name' ) as $col ) {
+                    if ( empty( $guardian->$col ) && ! empty( $signup[ $col ] ) ) {
+                        $data[ $col ] = $signup[ $col ];
+                    }
+                }
+            }
+            $wpdb->update( "{$wpdb->prefix}was_guardians", $data, array( 'id' => $guardian->id ) );
+        }
+        delete_user_meta( $user->ID, 'was_signup_details' );
+    }
+
+    /**
+     * The link in the confirmation email (GET, signed in or out). Confirms the address,
+     * links the family record, then shows the portal — or the sign-in page, with a
+     * notice, if this browser isn't signed in to that account.
+     */
+    public static function ajax_verify_email() {
+        $user_id = absint( $_GET['u'] ?? 0 );
+        $token   = sanitize_text_field( wp_unslash( $_GET['k'] ?? '' ) );
+        $user    = $user_id ? get_userdata( $user_id ) : false;
+        $ok      = false;
+
+        if ( $user && $token !== '' ) {
+            $pending = get_user_meta( $user->ID, 'was_email_verify', true );
+            if ( is_array( $pending )
+                && ! empty( $pending['hash'] )
+                && hash_equals( (string) $pending['hash'], hash( 'sha256', $token ) )
+                && (int) ( $pending['expires'] ?? 0 ) >= time()
+                && ( $pending['email'] ?? '' ) === strtolower( $user->user_email ) ) {
+                self::mark_email_verified( $user );
+                $ok = true;
+            } elseif ( self::is_email_verified( $user->ID ) ) {
+                // Already confirmed — the link was opened twice, or a mail scanner got there first.
+                $ok = true;
+            }
+        }
+
+        $flag = $ok ? 'was_verified' : 'was_verify_error';
+        if ( $user && get_current_user_id() === (int) $user->ID ) {
+            wp_safe_redirect( add_query_arg( $flag, '1', home_url( '/account-portal/' ) ) );
+        } else {
+            wp_safe_redirect( add_query_arg( $flag, '1', home_url( '/account-login/' ) ) );
+        }
+        exit;
+    }
+
+    /** "Send the link again" from the portal notice (GET, nonce-protected). */
+    public static function ajax_resend_verification() {
+        $portal = home_url( '/account-portal/' );
+        if ( ! wp_verify_nonce( $_GET['_wpnonce'] ?? '', 'was_resend_verification' ) ) {
+            wp_safe_redirect( $portal );
+            exit;
+        }
+        $user_id = get_current_user_id();
+        if ( self::verification_pending( $user_id ) ) {
+            self::maybe_send_verification_email( $user_id, MINUTE_IN_SECONDS );
+        }
+        wp_safe_redirect( add_query_arg( 'was_verify_sent', '1', $portal ) );
+        exit;
+    }
+
+    public static function resend_verification_url() {
+        return add_query_arg( array(
+            'action'   => 'was_resend_verification',
+            '_wpnonce' => wp_create_nonce( 'was_resend_verification' ),
+        ), admin_url( 'admin-ajax.php' ) );
     }
 
     public static function get_coach_teams( $user_id ) {

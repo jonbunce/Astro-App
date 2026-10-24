@@ -75,6 +75,17 @@ class WAS_Portal {
 
         include WAS_PATH . 'templates/portal-header.php';
 
+        // Email confirmation (see WAS_Accounts): explain why an existing family record isn't
+        // showing yet, and send the confirmation link if one isn't already waiting.
+        $verify_pending = WAS_Accounts::verification_pending( $user_id );
+        self::render_verification_notice( $user, $verify_pending );
+
+        if ( $no_roles && $verify_pending ) {
+            // Saving the onboarding profile now would create a duplicate family record.
+            include WAS_PATH . 'templates/portal-footer.php';
+            return ob_get_clean();
+        }
+
         if ( $no_roles ) {
             // Check if guardian profile is complete
             $onboard_guardian = WAS_Accounts::current_guardian();
@@ -165,6 +176,36 @@ class WAS_Portal {
         include WAS_PATH . 'templates/portal-footer.php';
 
         return ob_get_clean();
+    }
+
+    /** "Please confirm your email address" notice (or the "confirmed" thank-you). */
+    private static function render_verification_notice( $user, $pending ) {
+        if ( ! $pending ) {
+            if ( ! empty( $_GET['was_verified'] ) && WAS_Accounts::is_email_verified( $user->ID ) ) {
+                echo '<div class="was-alert was-alert--success" style="margin-bottom:1rem;">Thanks &mdash; your email address is confirmed.</div>';
+            }
+            return;
+        }
+
+        // Accounts that registered with a matching email already have a link on its way;
+        // anyone else (e.g. an older shop account) gets one now. Never more than one per 48h
+        // unless they ask for it again.
+        WAS_Accounts::maybe_send_verification_email( $user->ID, 2 * DAY_IN_SECONDS );
+        ?>
+        <div class="was-info-box" style="margin-bottom:1rem;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div>
+                <strong>Please confirm your email address</strong>
+                <p>To keep your family&rsquo;s details safe we need to check that <strong><?php echo esc_html( $user->user_email ); ?></strong> is really yours before we show your children&rsquo;s registrations here. We&rsquo;ve emailed you a confirmation link &mdash; click it and they&rsquo;ll appear. It can take a few minutes, so please check your spam / junk folder too.</p>
+                <?php if ( ! empty( $_GET['was_verify_sent'] ) ) : ?>
+                <p><strong>We&rsquo;ve sent you a new link.</strong></p>
+                <?php elseif ( ! empty( $_GET['was_verify_error'] ) ) : ?>
+                <p><strong>That link has expired or has been replaced by a newer one.</strong> Please use the most recent email, or send the link again.</p>
+                <?php endif; ?>
+                <p><a href="<?php echo esc_url( WAS_Accounts::resend_verification_url() ); ?>" class="was-link">Send the link again</a></p>
+            </div>
+        </div>
+        <?php
     }
 
     // ── Parent section ─────────────────────────────────────────────────────────

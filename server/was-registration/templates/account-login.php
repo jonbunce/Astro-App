@@ -7,6 +7,12 @@
             <img src="<?php echo esc_url( was_portal_logo_dark_url() ); ?>" class="astro-account-logo" alt="ASTRO">
         </div>
 
+        <?php if ( isset( $verify_notice ) && $verify_notice === 'ok' ) : ?>
+        <div class="was-alert was-alert--success">Thanks &mdash; your email address is confirmed. Please sign in to continue.</div>
+        <?php elseif ( isset( $verify_notice ) && $verify_notice === 'invalid' ) : ?>
+        <div class="was-alert was-alert--error">That confirmation link has expired or has already been used. Sign in and we&rsquo;ll send you a new one.</div>
+        <?php endif; ?>
+
         <div id="was-login-error" class="was-alert was-alert--error" style="display:none;"></div>
 
         <div class="was-field">
