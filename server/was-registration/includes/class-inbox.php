@@ -184,6 +184,7 @@ class WAS_Inbox {
      * @return int[] The user IDs it was delivered to in this batch.
      */
     public static function deliver_club_message( $message_id, array $emails, $subject, $body, $from, array $already = array() ) {
+        if ( ! has_filter( 'was_rest_user_allowed' ) ) return array();   // no app plugin: nothing to do
         try {
             $user_ids = array_diff( self::app_users( self::user_ids_for_emails( $emails ) ), array_map( 'intval', $already ) );
             if ( $message_id ) {
@@ -217,6 +218,7 @@ class WAS_Inbox {
      */
     public static function deliver_team_news( $post_id, $team ) {
         global $wpdb;
+        if ( ! has_filter( 'was_rest_user_allowed' ) ) return;   // no app plugin: nothing to do
         try {
             $post_id = (int) $post_id;
             if ( ! $post_id || ! $team ) return;
