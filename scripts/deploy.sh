@@ -72,7 +72,7 @@ if [ "$DB_BACKUP" -eq 1 ]; then
   echo "Database exported to ~/deploy-backups/db-$TARGET-$STAMP.sql.gz (delete it once the deploy is verified)"
 fi
 
-tar czf - --exclude='*.bak*' -C "$ROOT/server" "$PLUGIN" | "${SSH[@]}" "cat > ~/deploy-tmp/$PLUGIN-$STAMP.tgz"
+tar czf - --exclude='*.bak*' --exclude='*.md' -C "$ROOT/server" "$PLUGIN" | "${SSH[@]}" "cat > ~/deploy-tmp/$PLUGIN-$STAMP.tgz"
 "${SSH[@]}" "set -e; tar xzf ~/deploy-tmp/$PLUGIN-$STAMP.tgz -C '$WP/wp-content/plugins' && rm ~/deploy-tmp/$PLUGIN-$STAMP.tgz
   cd '$WP' && wp sg purge >/dev/null 2>&1 || true"
 echo "Deployed $PLUGIN @ $REV to $TARGET and purged the cache."
