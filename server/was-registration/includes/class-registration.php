@@ -6,7 +6,8 @@ class WAS_Registration {
     public static function init() {
         add_shortcode( 'was_registration', array( __CLASS__, 'render' ) );
 
-        // AJAX handlers — logged in and anonymous (parents may not have WP accounts)
+        // AJAX handlers — signed-in accounts only. Registration requires an account (the
+        // page sends guests to the login), so none of these has a logged-out handler.
         $ajax_actions = array(
             'was_start_gc'            => 'ajax_start_gc',
             'was_submit_form'         => 'ajax_submit_form',
@@ -15,8 +16,7 @@ class WAS_Registration {
             'was_request_second_team' => 'ajax_request_second_team',
         );
         foreach ( $ajax_actions as $action => $method ) {
-            add_action( "wp_ajax_{$action}",        array( __CLASS__, $method ) );
-            add_action( "wp_ajax_nopriv_{$action}", array( __CLASS__, $method ) );
+            add_action( "wp_ajax_{$action}", array( __CLASS__, $method ) );
         }
 
         // Logged-in only: lapsed-DD re-subscribe from the parent portal
@@ -786,23 +786,16 @@ class WAS_Registration {
         return add_query_arg( 'was_error', $code, remove_query_arg( array( 'was_gc_return', 'redirect_flow_id', 'team_id' ), $base ) );
     }
 
-    // ── AJAX: Check if email matches existing guardian with active siblings ────
+    // ── AJAX: Does the signed-in family already have active signed children? ────
 
     public static function ajax_check_sibling() {
         check_ajax_referer( 'was_nonce', 'nonce' );
 
         $team_id = absint( $_POST['team_id'] ?? 0 );
-        $email   = sanitize_email( $_POST['email'] ?? '' );
 
-        // Prefer logged-in guardian over email lookup
-        $guardian = null;
-        if ( is_user_logged_in() ) {
-            $guardian = WAS_Accounts::current_guardian();
-        }
-        // Fall back to email if provided and no logged-in guardian found
-        if ( ! $guardian && $email && is_email( $email ) ) {
-            $guardian = WAS_Database::get_guardian_by_email( $email );
-        }
+        // Only ever the signed-in account's own family record. (There used to be a lookup
+        // by any email address, which revealed other families' children's names.)
+        $guardian = WAS_Accounts::current_guardian();
         if ( ! $guardian ) {
             wp_send_json_success( array( 'match' => false ) );
         }
