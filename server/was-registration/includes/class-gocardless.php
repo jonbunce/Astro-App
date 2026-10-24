@@ -795,12 +795,15 @@ class WAS_GoCardless {
         $signature = $request->get_header( 'Webhook-Signature' );
         $secret    = self::webhook_secret();
 
-        // Verify signature if a secret is configured
-        if ( $secret ) {
-            $expected = hash_hmac( 'sha256', $body, $secret );
-            if ( ! hash_equals( $expected, (string) $signature ) ) {
-                return new WP_REST_Response( array( 'error' => 'Invalid signature' ), 401 );
-            }
+        // Every webhook must be signed. Without a secret anyone could post fake payment and
+        // mandate events, so refuse them until one is set in ASTRO → Settings.
+        if ( ! $secret ) {
+            error_log( '[WAS] GoCardless webhook rejected: no webhook secret is configured for the ' . ( self::is_sandbox() ? 'sandbox' : 'live' ) . ' environment.' );
+            return new WP_REST_Response( array( 'error' => 'Webhook secret not configured' ), 401 );
+        }
+        $expected = hash_hmac( 'sha256', $body, $secret );
+        if ( ! hash_equals( $expected, (string) $signature ) ) {
+            return new WP_REST_Response( array( 'error' => 'Invalid signature' ), 401 );
         }
 
         $payload = json_decode( $body, true );
