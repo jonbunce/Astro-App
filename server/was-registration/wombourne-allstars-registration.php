@@ -11,7 +11,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'WAS_VERSION',    '2.29.0' );
-define( 'WAS_DB_VERSION', '2.15.0' );
+define( 'WAS_DB_VERSION', '2.16.0' );
 
 // Age in whole years from a YYYY-MM-DD date of birth, or '' if not set/invalid.
 function was_age( $dob ) {
@@ -339,6 +339,7 @@ require_once WAS_PATH . 'includes/class-facebook.php';
 require_once WAS_PATH . 'includes/class-team-news.php';
 require_once WAS_PATH . 'includes/class-interest.php';
 require_once WAS_PATH . 'includes/class-arrears.php';
+require_once WAS_PATH . 'includes/class-inbox.php';
 require_once WAS_PATH . 'admin/class-admin.php';
 
 // A closed account (deletion requested in the app) can't sign in anywhere. Added now, not

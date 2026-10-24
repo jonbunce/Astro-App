@@ -12,6 +12,9 @@ class WAS_Database {
         $charset = $wpdb->get_charset_collate();
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
+        // Note: TEXT columns are declared without a DEFAULT. MySQL refuses one, and dbDelta
+        // would otherwise try (and fail) to "fix" the missing default on every update.
+
         // ── Teams ──────────────────────────────────────────────────────────────
         dbDelta( "CREATE TABLE {$wpdb->prefix}was_teams (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
@@ -64,7 +67,7 @@ class WAS_Database {
             gc_customer_id varchar(100) NOT NULL DEFAULT '',
             registration_token varchar(64) NOT NULL DEFAULT '',
             created_by_user bigint(20) unsigned NOT NULL DEFAULT 0,
-            notes text NOT NULL DEFAULT '',
+            notes text NOT NULL,
             created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
@@ -92,11 +95,11 @@ class WAS_Database {
             player_id mediumint(9) NOT NULL,
             consent_given tinyint(1) NOT NULL DEFAULT 0,
             consent_date datetime DEFAULT NULL,
-            health_needs text NOT NULL DEFAULT '',
-            current_medication text NOT NULL DEFAULT '',
-            medical_training_needs text NOT NULL DEFAULT '',
-            access_needs text NOT NULL DEFAULT '',
-            communication_needs text NOT NULL DEFAULT '',
+            health_needs text NOT NULL,
+            current_medication text NOT NULL,
+            medical_training_needs text NOT NULL,
+            access_needs text NOT NULL,
+            communication_needs text NOT NULL,
             updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             UNIQUE KEY player_id (player_id)
@@ -402,6 +405,21 @@ class WAS_Database {
             $wpdb->query( "ALTER TABLE {$wpdb->prefix}was_players ADD COLUMN created_by_user bigint(20) unsigned NOT NULL DEFAULT 0 AFTER registration_token" );
         }
 
+        // v2.16.0: the app inbox — one row per member per club message / team news item (WAS_Inbox)
+        dbDelta( "CREATE TABLE {$wpdb->prefix}was_inbox (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) unsigned NOT NULL DEFAULT 0,
+            type varchar(30) NOT NULL DEFAULT '',
+            title varchar(255) NOT NULL DEFAULT '',
+            body text,
+            data longtext,
+            ref_id bigint(20) unsigned NOT NULL DEFAULT 0,
+            created_at datetime NOT NULL,
+            read_at datetime DEFAULT NULL,
+            PRIMARY KEY  (id),
+            KEY user_created (user_id,created_at)
+        ) $charset;" );
+
         update_option( 'was_db_version', WAS_DB_VERSION );
         // Clear any cached version mismatch
         delete_option( 'was_db_needs_upgrade' );
@@ -658,10 +676,29 @@ class WAS_Database {
 
     /**
      * All active players under the same guardian (used to detect siblings).
+     *
+     * By default every registration this season except pending and withdrawn ones (the
+     * parent portal's list). Pass $statuses (e.g. array( 'pending', 'active' )) to get
+     * only registrations with those statuses instead.
      */
-    public static function get_players_by_guardian( $guardian_id, $season = null ) {
+    public static function get_players_by_guardian( $guardian_id, $season = null, $statuses = null ) {
         global $wpdb;
         $season = $season ?: was_season();
+        if ( is_array( $statuses ) ) {
+            $statuses = array_values( array_filter( array_map( 'sanitize_key', $statuses ) ) );
+            if ( ! $statuses ) return array();
+            $in = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
+            return $wpdb->get_results( $wpdb->prepare(
+                "SELECT p.*, t.name AS team_name, t.logo_path AS team_logo
+                 FROM {$wpdb->prefix}was_players p
+                 LEFT JOIN {$wpdb->prefix}was_teams t ON p.team_id = t.id
+                 WHERE p.primary_guardian_id = %d
+                   AND p.season = %s
+                   AND p.registration_status IN ( $in )
+                 ORDER BY p.id ASC",
+                array_merge( array( (int) $guardian_id, $season ), $statuses )
+            ) );
+        }
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT p.*, t.name AS team_name, t.logo_path AS team_logo
              FROM {$wpdb->prefix}was_players p
