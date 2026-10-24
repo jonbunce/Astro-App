@@ -419,6 +419,15 @@ class WAS_Registration {
             wp_send_json_error( array( 'message' => 'Your registration session could not be found. This can happen if the page was cached. Please go back and start registration again — your details will not have been saved.' ) );
         }
 
+        // ── Guardian ──────────────────────────────────────────────────────────
+        // Always the signed-in account's own family record — never one looked up by the
+        // email address in the form, which could pick out (and overwrite) another family.
+        $reg_guardian = WAS_Accounts::current_guardian();
+        if ( ! $reg_guardian ) {
+            wp_send_json_error( array( 'message' => 'Please complete your profile in your ASTRO portal before registering a child.' ) );
+        }
+        $guardian_id = (int) $reg_guardian->id;
+
         // ── Duplicate-child safeguard ─────────────────────────────────────────
         // A child only needs ONE registration. If the same child (same name, same
         // guardian, this season) is already registered, abort this attempt and offer
@@ -426,8 +435,7 @@ class WAS_Registration {
         // (keeping a single, correct Direct Debit) rather than creating a duplicate.
         $reg_first    = sanitize_text_field( $_POST['first_name'] ?? '' );
         $reg_last     = sanitize_text_field( $_POST['last_name'] ?? '' );
-        $reg_guardian = WAS_Accounts::current_guardian();
-        if ( $reg_guardian && $reg_first && $reg_last ) {
+        if ( $reg_first && $reg_last ) {
             $already = $wpdb->get_row( $wpdb->prepare(
                 "SELECT p.id, t.name AS team_name FROM {$wpdb->prefix}was_players p
                  LEFT JOIN {$wpdb->prefix}was_teams t ON p.team_id = t.id
@@ -493,52 +501,11 @@ class WAS_Registration {
             }
         }
 
-        // ── Upsert guardian ───────────────────────────────────────────────────
-        $full_name   = sanitize_text_field( $_POST['guardian_name'] );
-        $name_parts  = explode( ' ', $full_name, 2 );
-        $g_first     = $name_parts[0];
-        $g_last      = $name_parts[1] ?? '';
-        $g_email     = sanitize_email( $_POST['email'] );
-
-        $existing_g  = WAS_Database::get_guardian_by_email( $g_email );
-
-        if ( $existing_g ) {
-            $wpdb->update(
-                "{$wpdb->prefix}was_guardians",
-                array(
-                    'first_name'    => $g_first,
-                    'last_name'     => $g_last,
-                    'telephone'     => sanitize_text_field( $_POST['telephone'] ),
-                    'address_line1' => sanitize_text_field( $_POST['address'] ),
-                    'postcode'      => strtoupper( sanitize_text_field( $_POST['postcode'] ) ),
-                    'updated_at'    => current_time( 'mysql' ),
-                ),
-                array( 'id' => $existing_g->id ),
-                array( '%s', '%s', '%s', '%s', '%s', '%s' ),
-                array( '%d' )
-            );
-            $guardian_id = $existing_g->id;
-        } else {
-            $wpdb->insert(
-                "{$wpdb->prefix}was_guardians",
-                array(
-                    'first_name'    => $g_first,
-                    'last_name'     => $g_last,
-                    'email'         => $g_email,
-                    'telephone'     => sanitize_text_field( $_POST['telephone'] ),
-                    'address_line1' => sanitize_text_field( $_POST['address'] ),
-                    'postcode'      => strtoupper( sanitize_text_field( $_POST['postcode'] ) ),
-                ),
-                array( '%s', '%s', '%s', '%s', '%s', '%s' )
-            );
-            $guardian_id = $wpdb->insert_id;
-        }
+        // The parent / guardian contact fields on the form are read-only copies of the
+        // account's own record (edited in the portal), so the record isn't rewritten here.
 
         // ── Detect sibling discount via logged-in account ────────────────────
-        // Use the logged-in guardian for reliable sibling detection
-        $logged_in_guardian = WAS_Accounts::current_guardian();
-        $lookup_guardian_id = $logged_in_guardian ? $logged_in_guardian->id : $guardian_id;
-        $siblings     = WAS_Database::get_players_by_guardian( $lookup_guardian_id );
+        $siblings     = WAS_Database::get_players_by_guardian( $guardian_id );
         $sibling_count = count( array_filter( $siblings, function( $s ) use ( $player ) {
             return $s->id !== $player->id && $s->registration_status !== 'withdrawn';
         } ) );
