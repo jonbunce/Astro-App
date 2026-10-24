@@ -89,11 +89,7 @@ class WAS_Portal {
         if ( $no_roles ) {
             // Check if guardian profile is complete
             $onboard_guardian = WAS_Accounts::current_guardian();
-            $profile_complete = $onboard_guardian
-                && ! empty( $onboard_guardian->first_name )
-                && ! empty( $onboard_guardian->telephone )
-                && ! empty( $onboard_guardian->address_line1 )
-                && ! empty( $onboard_guardian->postcode );
+            $profile_complete = WAS_Accounts::guardian_profile_complete( $onboard_guardian );
 
             if ( $profile_complete ) {
                 // Profile done but role not yet set — edge case, show waiting message

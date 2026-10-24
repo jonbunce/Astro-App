@@ -47,18 +47,7 @@ class WAS_Registration {
 
         // Guardian profile must be complete before registering a child
         $guardian = WAS_Accounts::current_guardian();
-        $required_fields = array( 'first_name', 'telephone', 'address_line1', 'postcode' );
-        $profile_incomplete = false;
-        if ( ! $guardian ) {
-            $profile_incomplete = true;
-        } else {
-            foreach ( $required_fields as $field ) {
-                if ( empty( $guardian->$field ) ) {
-                    $profile_incomplete = true;
-                    break;
-                }
-            }
-        }
+        $profile_incomplete = ! WAS_Accounts::guardian_profile_complete( $guardian );
 
         if ( $profile_incomplete ) {
             ob_start();

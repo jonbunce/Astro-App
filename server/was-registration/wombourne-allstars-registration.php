@@ -340,6 +340,7 @@ require_once WAS_PATH . 'includes/class-team-news.php';
 require_once WAS_PATH . 'includes/class-interest.php';
 require_once WAS_PATH . 'includes/class-arrears.php';
 require_once WAS_PATH . 'includes/class-inbox.php';
+require_once WAS_PATH . 'includes/class-rest.php';
 require_once WAS_PATH . 'admin/class-admin.php';
 
 // A closed account (deletion requested in the app) can't sign in anywhere. Added now, not
@@ -438,6 +439,10 @@ add_action( 'rest_api_init', function () {
         'permission_callback' => '__return_true',
     ) );
 } );
+
+// The Allstars app's member API (the rest of was/v1). Inert unless the separate Allstars
+// app plugin lets the signed-in user in — see WAS_Rest.
+WAS_Rest::init();
 
 /**
  * May this (signed-in) user see this child's photo?

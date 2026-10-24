@@ -113,6 +113,37 @@ class WAS_Arrears {
         );
     }
 
+    /**
+     * The parent portal's arrears banner as plain text (used by the app), e.g. "2 collections
+     * returned unpaid because there were insufficient funds in the account. Sam's place is
+     * on hold until this is paid." '' when nothing is outstanding.
+     */
+    public static function parent_reason( $player, $summary = null ) {
+        $summary = $summary ?: self::summary( $player );
+        if ( (float) $summary['total'] <= 0 ) return '';
+
+        $count = count( $summary['rows'] );
+        $text  = $count . ' collection' . ( $count !== 1 ? 's' : '' ) . ' returned unpaid';
+        $causes = array_values( array_unique( array_filter( array_map( function ( $r ) {
+            return (string) ( $r->failure_reason ?? '' );
+        }, $summary['rows'] ) ) ) );
+        if ( count( $causes ) === 1 ) {
+            $text .= ' because ' . self::reason_text( $causes[0] );
+        }
+        $text .= '.';
+
+        if ( ! empty( $summary['hold_since'] ) ) {
+            $text .= ' ' . $player->first_name . "'s place is on hold until this is paid.";
+        }
+        $inflight = $summary['inflight'];
+        if ( $inflight ) {
+            $text .= ' A catch-up collection of £' . number_format( (float) $inflight->amount, 2 ) . ' is on its way'
+                   . ( ! empty( $inflight->charge_date ) ? ' and should leave your account on or around ' . date_i18n( 'j F Y', strtotime( $inflight->charge_date ) ) : '' )
+                   . '.';
+        }
+        return $text;
+    }
+
     /** One row per player in arrears this season — treasurer view. */
     public static function season_arrears( $season ) {
         global $wpdb;

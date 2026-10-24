@@ -551,6 +551,19 @@ class WAS_Accounts {
         wp_send_json_success( array( 'message' => 'Profile updated.' ) );
     }
 
+    /**
+     * A family record with the details needed before registering a child: first name,
+     * telephone, first line of address and postcode. Shared by the portal's onboarding
+     * check, the registration form and the app.
+     */
+    public static function guardian_profile_complete( $guardian ) {
+        if ( ! $guardian ) return false;
+        foreach ( array( 'first_name', 'telephone', 'address_line1', 'postcode' ) as $field ) {
+            if ( empty( $guardian->$field ) ) return false;
+        }
+        return true;
+    }
+
     public static function current_guardian() {
         $user_id = get_current_user_id();
         if ( ! $user_id ) return null;
