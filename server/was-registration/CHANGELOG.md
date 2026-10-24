@@ -1,5 +1,14 @@
 # ASTRO changelog
 
+## 2.30.0 — groundwork for the Allstars app
+
+Nothing changes on the website. This release adds the parts of ASTRO that the new Allstars app will use. They stay switched off until the app is opened (that is controlled by the separate Allstars app plugin), and even then only work for the accounts the app lets in.
+
+- **Your own family's details in the app:** your profile, your children for this season (team, monthly amount and what it is made up of, next and last payment, anything outstanding, consents, and whether medical and emergency details are on file), and your children's photos, which are shown to exactly the same people who can see them on the website. Medical answers, addresses and phone numbers are never sent to the app.
+- **An inbox in the app.** When a club message goes out or team news is published, members who use the app also find it in their app inbox. Emails go out exactly as before. (Database update 2.16.0 adds the inbox table.)
+- **Asking for your account to be deleted, from the app.** After re-entering their password, a member's account is closed straight away: it can't be used to sign in to the website or the app, and it is signed out everywhere. The registration officer, treasurer and club admin are emailed a checklist (cancel any Direct Debit, keep what FA and safeguarding rules require, then remove the rest). Nothing is deleted automatically.
+- **Tidier database updates:** a few table definitions were corrected so database updates no longer log harmless errors. No data changes.
+
 ## 2.29.0 — security fixes
 
 A security release. Nothing changes for families who already have an account linked to their children; the main thing people may notice is the new email confirmation step.

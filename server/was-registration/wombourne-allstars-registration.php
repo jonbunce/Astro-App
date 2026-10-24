@@ -3,14 +3,14 @@
  * Plugin Name:  ASTRO
  * Plugin URI:   https://wombourneallstarsfc.co.uk
  * Description:  ASTRO — Allstars System for Tracking Registrations and Onboarding. Built for our stars. Powered for their journey.
- * Version:      2.29.0
+ * Version:      2.30.0
  * Author:       Wombourne Allstars FC
  * Text Domain:  was-reg
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WAS_VERSION',    '2.29.0' );
+define( 'WAS_VERSION',    '2.30.0' );
 define( 'WAS_DB_VERSION', '2.16.0' );
 
 // Age in whole years from a YYYY-MM-DD date of birth, or '' if not set/invalid.
