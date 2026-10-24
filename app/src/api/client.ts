@@ -1,7 +1,7 @@
 import * as Device from 'expo-device';
 
 import { mockConfig, mockFamily, mockHome, mockInbox, mockMe, mockNews } from './mock';
-import type { AppConfig, Child, HomeData, InboxItem, Me, NewsItem } from './types';
+import type { AppConfig, Child, HomeData, InboxItem, Me, NewsItem, Session } from './types';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE?.replace(/\/$/, '');
 
@@ -81,6 +81,13 @@ export const api = {
   async markRead(id: number): Promise<void> {
     if (isMock) return;
     await request(`/was/v1/inbox/${id}/read`, { method: 'POST' });
+  },
+  async sessions(): Promise<Session[]> {
+    return isMock ? later([]) : request('/wa/v1/auth/sessions');
+  },
+  async registerDevice(expoPushToken: string, platform: string): Promise<void> {
+    if (isMock) return;
+    await request('/wa/v1/devices', { method: 'POST', body: JSON.stringify({ expoPushToken, platform }) });
   },
   async requestDeletion(password: string): Promise<void> {
     if (isMock) return later(undefined, 600);

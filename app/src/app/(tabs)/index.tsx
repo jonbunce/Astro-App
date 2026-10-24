@@ -3,7 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useHome, useMe } from '@/api/hooks';
+import { useFamily, useHome, useMe } from '@/api/hooks';
 import type { Fixture } from '@/api/types';
 import { Backdrop } from '@/components/Backdrop';
 import { PillButton } from '@/components/Buttons';
@@ -19,6 +19,9 @@ import { colors, fonts } from '@/theme';
 export default function Home() {
   const me = useMe();
   const home = useHome();
+  const family = useFamily();
+  // Anything owed is worked out from the family's own data, not sent with the club content.
+  const owing = family.data?.find((c) => c.arrears);
   const today = formatDate(new Date().toISOString(), { weekday: 'long', day: 'numeric', month: 'short' });
   const [next, ...others] = home.data?.fixtures ?? [];
 
@@ -29,6 +32,7 @@ export default function Home() {
       onRefresh={() => {
         me.refetch();
         home.refetch();
+        family.refetch();
       }}>
       <View style={styles.header}>
         <View style={{ gap: 10 }}>
@@ -38,13 +42,13 @@ export default function Home() {
         <Image source={img.badge} style={styles.badge} accessibilityLabel="Wombourne Allstars FC badge" />
       </View>
 
-      {home.data?.alert ? (
+      {owing?.arrears ? (
         <Glass tone="gold" radius={22} style={styles.alert}>
-          <Image source={crestSource(home.data.alert.image)} style={styles.alertCrest} />
+          <Image source={crestSource(owing.team.crest)} style={styles.alertCrest} />
           <View style={{ flex: 1, gap: 2 }}>
-            <Txt variant="strong">{home.data.alert.title}</Txt>
+            <Txt variant="strong">{`${owing.firstName}'s subs need attention`}</Txt>
             <Txt variant="small" style={{ color: 'rgba(255,255,255,0.8)' }}>
-              {home.data.alert.body}
+              {owing.arrears.reason}
             </Txt>
           </View>
           <PillButton label="Review" onPress={() => router.navigate('/family')} />
@@ -103,6 +107,8 @@ function formatKickoff(iso: string, short = false) {
 
 /** The red "up next" card, styled after the team crests' red/black halftone artwork. */
 function MatchdayCard({ fixture }: { fixture: Fixture }) {
+  // The club's own first-team photo until the API supplies match photos.
+  const photo = imageSource(fixture.photo) ?? (/^men/i.test(fixture.team) ? img.firstTeam : undefined);
   return (
     <Pressable accessibilityRole="button" onPress={() => router.navigate('/news')} style={styles.match}>
       <LinearGradient
@@ -112,10 +118,10 @@ function MatchdayCard({ fixture }: { fixture: Fixture }) {
         end={{ x: 1, y: 0.6 }}
         style={StyleSheet.absoluteFill}
       />
-      {fixture.photo ? (
+      {photo ? (
         <View style={styles.matchPhotoWrap}>
           <Image
-            source={imageSource(fixture.photo)}
+            source={photo}
             contentFit="cover"
             contentPosition={{ left: '50%', top: '20%' }}
             style={StyleSheet.absoluteFill}

@@ -45,6 +45,8 @@ export interface Child {
   consents: { photography: boolean; legal: boolean };
   medicalOnFile: boolean;
   emergencyOnFile: boolean;
+  /** Fetch with GET /was/v1/players/{id}/photo. */
+  hasPhoto: boolean;
 }
 
 export interface Fixture {
@@ -83,9 +85,17 @@ export interface InboxItem {
 }
 
 export interface HomeData {
-  alert: { title: string; body: string; childId: number; image?: string | null } | null;
   fixtures: Fixture[];
   latest: NewsItem[];
+}
+
+export interface Session {
+  id: number;
+  device: string;
+  platform: string;
+  createdAt: string;
+  lastUsedAt: string;
+  current: boolean;
 }
 
 export interface InfoLink {

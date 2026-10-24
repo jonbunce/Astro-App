@@ -1,19 +1,17 @@
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
+import { queryClient } from '@/api/queryClient';
 import { AuthProvider, useAuth } from '@/auth/AuthContext';
+import { usePush } from '@/lib/push';
 import { colors, fonts } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
-
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 60_000, retry: 1 } },
-});
 
 const theme = {
   ...DarkTheme,
@@ -47,6 +45,7 @@ export default function RootLayout() {
 function RootStack({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { status } = useAuth();
   const ready = fontsLoaded && status !== 'loading';
+  usePush(status === 'signedIn');
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();

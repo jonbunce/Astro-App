@@ -33,6 +33,7 @@ export const mockFamily: Child[] = [
     consents: { photography: true, legal: true },
     medicalOnFile: true,
     emergencyOnFile: true,
+    hasPhoto: false,
   },
   {
     id: 102,
@@ -49,6 +50,7 @@ export const mockFamily: Child[] = [
     consents: { photography: false, legal: true },
     medicalOnFile: true,
     emergencyOnFile: true,
+    hasPhoto: false,
   },
 ];
 
@@ -109,12 +111,6 @@ export function mockNews(filter: 'all' | 'mine' | 'club' | 'adults'): NewsItem[]
 }
 
 export const mockHome: HomeData = {
-  alert: {
-    title: "Ava's subs need attention",
-    body: "October's Direct Debit didn't go through.",
-    childId: 102,
-    image: 'sharks',
-  },
   fixtures: [
     {
       team: "Men's First Team",

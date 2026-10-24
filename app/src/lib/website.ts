@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 
 import { api, isMock } from '@/api/client';
+import { queryClient } from '@/api/queryClient';
 import { SITE_URL } from '@/theme';
 
 /**
@@ -16,6 +17,8 @@ export async function openSignedIn(path: string) {
   }
   const { url } = await api.handoff(path);
   await WebBrowser.openAuthSessionAsync(url, 'wombourneallstars://done', { preferEphemeralSession: true });
+  // Whatever was changed on the website shows straight away back in the app.
+  await queryClient.invalidateQueries();
 }
 
 /** Show a public club page (news article, info page) inside the app. */

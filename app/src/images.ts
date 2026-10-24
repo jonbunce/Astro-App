@@ -35,6 +35,7 @@ const local: Record<string, Src> = {
   astroLaunch: img.astroLaunch,
   pitch: img.pitch,
   walking: img.walking,
+  firstTeam: img.firstTeam,
 };
 
 /** A remote URL from the API, or a bundled key from the sample data. */
