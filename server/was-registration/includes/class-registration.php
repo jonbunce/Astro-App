@@ -413,6 +413,15 @@ class WAS_Registration {
         $token  = sanitize_text_field( $_POST['was_token'] ?? '' );
         $player = WAS_Database::get_player_by_token( $token );
 
+        // A cached page can lose the token from the form; resume from this account's own
+        // breadcrumb (set in create_pending_player), never from anyone else's registration.
+        if ( ! $player ) {
+            $crumb = (string) get_user_meta( get_current_user_id(), 'was_pending_token', true );
+            if ( $crumb !== '' ) {
+                $player = WAS_Database::get_player_by_token( $crumb );
+            }
+        }
+
         // The token must match a pending registration that this account started. There is
         // deliberately no "most recent pending registration" fallback: guessing could hand
         // one family another family's pending row and Direct Debit mandate.
