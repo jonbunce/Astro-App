@@ -42,7 +42,7 @@ export default function Family() {
 
       {family.data?.map((child) => <ChildCard key={child.id} child={child} />)}
 
-      <GlassButton label="Register another child" onPress={() => openSignedIn('/registration/')}>
+      <GlassButton label="Register another child" onPress={() => openSignedIn('/registrations-unified/')}>
         <Txt style={{ fontSize: 20, lineHeight: 22 }}>+</Txt>
       </GlassButton>
     </Screen>

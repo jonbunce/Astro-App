@@ -157,3 +157,56 @@ body.wa-app .was-alert { border-radius: 16px !important; border-width: 1px !impo
 /* Keep content clear of the "Back to the app" button */
 body.wa-app .was-portal-wrap,
 body.wa-app .was-wrap { padding-bottom: 24px; }
+
+/* ASTRO's ASTRO logo on light pages is the dark version: show it white */
+body.wa-app img.astro-account-logo { filter: brightness(0) invert(1); }
+
+/* Parts of ASTRO that hard-code light backgrounds (registration.css / portal.css) */
+body.wa-app :where(.was-radio-card, .was-med-detail, .was-yn-block--sub, .was-photo-preview, .was-btn--create, .was-crop-box) {
+	background: rgba(255, 255, 255, 0.06) !important;
+	border-color: rgba(255, 255, 255, 0.16) !important;
+	color: #fff !important;
+}
+body.wa-app .was-radio-card:has(input:checked) {
+	background: rgba(200, 16, 46, 0.2) !important;
+	border-color: #C8102E !important;
+	box-shadow: 0 0 0 1px #C8102E inset;
+}
+body.wa-app .was-crop-viewport { background: #1d2025 !important; }
+body.wa-app .was-resume-banner {
+	background: rgba(227, 154, 0, 0.14) !important;
+	border: 1px solid rgba(227, 154, 0, 0.45) !important;
+	color: #fff !important;
+}
+body.wa-app :where(.was-info-box, .was-sibling-notice--info) {
+	background: rgba(60, 110, 200, 0.18) !important;
+	border-color: rgba(120, 160, 255, 0.35) !important;
+	color: #fff !important;
+}
+body.wa-app :where(.was-alert--success, .was-info-box--success, .was-sibling-notice--match, .was-yn-label.was-yn-yes:has(input:checked)) {
+	background: rgba(31, 138, 84, 0.22) !important;
+	border-color: rgba(127, 220, 170, 0.45) !important;
+	color: #fff !important;
+}
+body.wa-app :where(.was-alert--error, .was-yn-label.was-yn-no:has(input:checked), .was-medical-block, .was-medical-row--alert) {
+	background: rgba(200, 16, 46, 0.2) !important;
+	border-color: rgba(255, 107, 128, 0.45) !important;
+	color: #fff !important;
+}
+body.wa-app :where(.was-resume-banner, .was-info-box, .was-alert, .was-sibling-notice, .was-radio-card, .was-med-detail) :where(p, strong, span, small, h3, h4, label, li) { color: inherit !important; }
+body.wa-app .was-treas-table tr { background: transparent !important; }
+body.wa-app .was-treas-table :where(td, th) { border-color: rgba(255, 255, 255, 0.1) !important; color: #fff; }
+
+/* Ordinary website content that can appear on these pages (Flatsome builder) */
+body.wa-app .entry-content { color: rgba(255, 255, 255, 0.86); }
+body.wa-app .entry-content :where(h1, h2, h3, h4, h5, h6) { color: #fff; }
+body.wa-app .page-title { background: transparent !important; }
+body.wa-app .page-title :where(h1, .page-title-inner) { color: #fff !important; }
+body.wa-app .pricing-table {
+	background: rgba(255, 255, 255, 0.06) !important;
+	border: 1px solid rgba(255, 255, 255, 0.13) !important;
+	border-radius: 22px !important;
+	overflow: hidden;
+	color: #fff !important;
+}
+body.wa-app .pricing-table :where(.title, .price, .description, .items, .price-table-header, li) { background: transparent !important; color: #fff !important; border-color: rgba(255, 255, 255, 0.1) !important; }
