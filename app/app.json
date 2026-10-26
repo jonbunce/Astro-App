@@ -11,7 +11,10 @@
     "ios": {
       "bundleIdentifier": "uk.co.wombourneallstars.app",
       "supportsTablet": false,
-      "icon": "./assets/images/icon.png",
+      "icon": {
+        "light": "./assets/images/icon.png",
+        "tinted": "./assets/images/icon-tinted.png"
+      },
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -53,6 +56,18 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cf906d6d-7c56-4393-a44e-69a30777d0fb"
+      }
+    },
+    "owner": "jonbunce",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cf906d6d-7c56-4393-a44e-69a30777d0fb"
     }
   }
 }

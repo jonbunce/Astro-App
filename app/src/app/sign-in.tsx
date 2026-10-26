@@ -20,7 +20,6 @@ import { Glass } from '@/components/Glass';
 import { Kicker } from '@/components/Kicker';
 import { Txt } from '@/components/Txt';
 import { img } from '@/images';
-import { openSignedIn } from '@/lib/website';
 import { colors, fonts, SITE_URL } from '@/theme';
 
 export default function SignIn() {
@@ -120,7 +119,7 @@ export default function SignIn() {
                 <Pressable onPress={() => WebBrowser.openBrowserAsync(`${SITE_URL}/account-reset/`)} hitSlop={8}>
                   <Txt variant="link">Forgot password?</Txt>
                 </Pressable>
-                <Pressable onPress={() => openSignedIn('/account-register/')} hitSlop={8}>
+                <Pressable onPress={() => WebBrowser.openBrowserAsync(`${SITE_URL}/account-register/`)} hitSlop={8}>
                   <Txt variant="link" style={{ color: colors.white }}>
                     Create an account
                   </Txt>
