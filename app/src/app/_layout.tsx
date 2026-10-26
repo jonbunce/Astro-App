@@ -6,9 +6,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
+import { useConfig } from '@/api/hooks';
 import { queryClient } from '@/api/queryClient';
 import { AuthProvider, useAuth } from '@/auth/AuthContext';
+import { UpdateRequired } from '@/components/UpdateRequired';
 import { usePush } from '@/lib/push';
+import { needsUpdate } from '@/lib/version';
 import { colors, fonts } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -44,6 +47,8 @@ export default function RootLayout() {
 
 function RootStack({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { status } = useAuth();
+  // Checked signed in or out; if the config can't be loaded the app carries on as normal.
+  const config = useConfig();
   const ready = fontsLoaded && status !== 'loading';
   usePush(status === 'signedIn');
 
@@ -52,6 +57,7 @@ function RootStack({ fontsLoaded }: { fontsLoaded: boolean }) {
   }, [ready]);
 
   if (!ready) return null;
+  if (config.data && needsUpdate(config.data.minVersion)) return <UpdateRequired config={config.data} />;
 
   const signedIn = status === 'signedIn';
   return (

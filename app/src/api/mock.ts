@@ -3,7 +3,7 @@
 
 import { SITE_URL } from '@/theme';
 
-import type { AppConfig, Child, HomeData, InboxItem, Me, NewsItem } from './types';
+import type { AppConfig, Child, HomeData, InboxItem, Me, NewsItem, Session } from './types';
 
 export const mockMe: Me = {
   id: 1,
@@ -92,7 +92,7 @@ const news: NewsItem[] = [
     kind: 'club',
     category: 'Future plans',
     image: 'futures',
-    url: `${SITE_URL}/news/`,
+    url: `${SITE_URL}/team-news/`,
   },
   {
     id: 9002,
@@ -150,7 +150,8 @@ export const mockInbox: InboxItem[] = [
     id: 1,
     type: 'club_message',
     title: 'Training cancelled tonight',
-    body: 'The pitches are waterlogged, so all evening sessions are off. See you next week.',
+    body:
+      "The pitches are waterlogged, so all evening sessions are off tonight. We've checked with the council and the grass needs a couple of dry days before it can be used again.\n\nSaturday's fixtures are still on for now. Coaches will confirm in their team groups by Friday evening.\n\nThanks for your patience, and see you next week.",
     from: 'From the committee',
     createdAt: '2026-10-24T16:05:00',
     read: false,
@@ -161,6 +162,7 @@ export const mockInbox: InboxItem[] = [
     title: 'New U10 Panthers team news',
     body: 'Panthers lift the cup at Codsall',
     image: 'panthers',
+    url: `${SITE_URL}/team-news/`,
     createdAt: '2026-10-23T18:20:00',
     read: false,
   },
@@ -193,6 +195,7 @@ export const mockInbox: InboxItem[] = [
 
 export const mockConfig: AppConfig = {
   minVersion: '1.0.0',
+  storeUrls: { ios: null, android: null },
   clubPages: [
     { title: 'Our story', url: `${SITE_URL}/our-story/`, image: 'pitch' },
     { title: 'Walking football', url: `${SITE_URL}/walking-football/`, image: 'walking' },
@@ -208,3 +211,8 @@ export const mockConfig: AppConfig = {
     { title: 'Privacy policy', url: `${SITE_URL}/privacy-policy/` },
   ],
 };
+
+export const mockSessions: Session[] = [
+  { id: 2, device: 'iPhone 16 Pro', platform: 'ios', createdAt: '2026-10-20T19:12:00', lastUsedAt: '2026-10-26T08:40:00', current: true },
+  { id: 1, device: 'Pixel 8', platform: 'android', createdAt: '2026-09-02T21:05:00', lastUsedAt: '2026-10-11T17:22:00', current: false },
+];

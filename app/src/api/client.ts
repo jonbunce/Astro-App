@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
-import { mockConfig, mockFamily, mockHome, mockInbox, mockMe, mockNews } from './mock';
+import { mockConfig, mockFamily, mockHome, mockInbox, mockMe, mockNews, mockSessions } from './mock';
 import type { AppConfig, Child, HomeData, InboxItem, Me, NewsItem, Session } from './types';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE?.replace(/\/$/, '');
@@ -91,7 +91,12 @@ export const api = {
     await request(`/was/v1/inbox/${id}/read`, { method: 'POST' });
   },
   async sessions(): Promise<Session[]> {
-    return isMock ? later([]) : request('/wa/v1/auth/sessions');
+    return isMock ? later(mockSessions) : request('/wa/v1/auth/sessions');
+  },
+  /** Sign out one of this account's other phones. */
+  async endSession(id: number): Promise<void> {
+    if (isMock) return later(undefined);
+    await request(`/wa/v1/auth/sessions/${id}`, { method: 'DELETE' });
   },
   async registerDevice(expoPushToken: string, platform: string): Promise<void> {
     if (isMock) return;

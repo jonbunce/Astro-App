@@ -1,8 +1,9 @@
 import { Image } from 'expo-image';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useChild } from '@/api/hooks';
+import { BackLink } from '@/components/BackLink';
 import { Backdrop } from '@/components/Backdrop';
 import { PrimaryButton } from '@/components/Buttons';
 import { Glass } from '@/components/Glass';
@@ -21,7 +22,7 @@ export default function ChildDetail() {
   if (!child) {
     return (
       <Screen backdrop={<Backdrop />}>
-        <BackLink />
+        <BackLink label="My family" />
         <Txt variant="small">This child isn't on your account.</Txt>
       </Screen>
     );
@@ -37,7 +38,7 @@ export default function ChildDetail() {
 
   return (
     <Screen backdrop={<Backdrop photo={crestSource(child.team.crest)} height={362} fadeLeft redWash={false} />}>
-      <BackLink />
+      <BackLink label="My family" />
       <View style={{ marginTop: 36, gap: 8 }}>
         <Kicker>{`${child.team.ageGroup} ${child.team.name}`}</Kicker>
         <Title size={64}>{child.firstName}</Title>
@@ -93,21 +94,7 @@ export default function ChildDetail() {
   );
 }
 
-function BackLink() {
-  return (
-    <Pressable accessibilityRole="button" accessibilityLabel="Back to my family" onPress={() => router.back()} style={styles.back}>
-      <Glass radius={22} style={styles.backCircle}>
-        <Text style={styles.backArrow}>‹</Text>
-      </Glass>
-      <Txt style={{ fontFamily: fonts.semibold }}>My family</Txt>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
-  back: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'flex-start' },
-  backCircle: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  backArrow: { color: colors.white, fontSize: 28, lineHeight: 30, marginTop: -2 },
   subs: { padding: 16, gap: 10 },
   total: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
   line: { flexDirection: 'row', justifyContent: 'space-between' },

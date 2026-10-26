@@ -1,15 +1,15 @@
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { useInbox, useMarkRead } from '@/api/hooks';
 import type { InboxItem } from '@/api/types';
 import { Backdrop } from '@/components/Backdrop';
 import { Glass } from '@/components/Glass';
+import { InboxAvatar } from '@/components/InboxAvatar';
 import { Kicker } from '@/components/Kicker';
 import { Screen } from '@/components/Screen';
 import { Title, Txt } from '@/components/Txt';
-import { img, imageSource } from '@/images';
+import { img } from '@/images';
 import { relativeTime } from '@/lib/website';
 import { colors, fonts } from '@/theme';
 
@@ -21,9 +21,7 @@ export default function Inbox() {
   const read = items.filter((m) => m.read);
 
   function open(item: InboxItem) {
-    if (!item.read) markRead.mutate(item.id);
-    if (item.type === 'team_news') router.navigate('/news');
-    if (item.type === 'payment') router.navigate('/family');
+    router.push({ pathname: '/inbox/[id]', params: { id: String(item.id) } });
   }
 
   return (
@@ -50,7 +48,7 @@ export default function Inbox() {
       {unread.map((m) => (
         <Pressable key={m.id} accessibilityRole="button" accessibilityLabel={`Unread: ${m.title}`} onPress={() => open(m)}>
           <Glass style={styles.unread}>
-            <Avatar item={m} size={44} />
+            <InboxAvatar item={m} size={44} />
             <View style={{ flex: 1, gap: 4 }}>
               <View style={styles.titleRow}>
                 <Txt variant="strong" style={{ flex: 1 }}>
@@ -60,7 +58,9 @@ export default function Inbox() {
                   {relativeTime(m.createdAt)}
                 </Txt>
               </View>
-              <Txt style={{ color: 'rgba(255,255,255,0.82)', fontSize: 14 }}>{m.body}</Txt>
+              <Txt numberOfLines={3} style={{ color: 'rgba(255,255,255,0.82)', fontSize: 14 }}>
+                {m.body}
+              </Txt>
               {m.from ? <Txt variant="caption">{m.from}</Txt> : null}
             </View>
           </Glass>
@@ -75,13 +75,15 @@ export default function Inbox() {
               accessibilityRole="button"
               onPress={() => open(m)}
               style={[styles.readRow, i < read.length - 1 && styles.divider]}>
-              <Avatar item={m} size={40} />
+              <InboxAvatar item={m} size={40} />
               <View style={{ flex: 1, gap: 3 }}>
                 <View style={styles.titleRow}>
                   <Txt style={{ flex: 1, fontFamily: fonts.semibold }}>{m.title}</Txt>
                   <Txt variant="caption">{relativeTime(m.createdAt)}</Txt>
                 </View>
-                <Txt variant="small">{m.body}</Txt>
+                <Txt variant="small" numberOfLines={2}>
+                  {m.body}
+                </Txt>
               </View>
             </Pressable>
           ))}
@@ -95,28 +97,6 @@ export default function Inbox() {
   );
 }
 
-/** Who a message is from: the club badge, a team crest, ASTRO, or a payment card icon. */
-function Avatar({ item, size }: { item: InboxItem; size: number }) {
-  if (item.type === 'team_news' && item.image) {
-    return <Image source={imageSource(item.image)} style={{ width: size, height: size, borderRadius: 12 }} />;
-  }
-  if (item.type === 'welcome') {
-    return (
-      <View style={[styles.iconBox, { width: size, height: size, backgroundColor: colors.carbon800 }]}>
-        <Image source={img.astro} contentFit="contain" style={{ width: size - 6, height: size - 16 }} />
-      </View>
-    );
-  }
-  if (item.type === 'payment') {
-    return (
-      <View style={[styles.iconBox, { width: size, height: size }]}>
-        <Text style={{ color: colors.white, fontSize: 18 }}>£</Text>
-      </View>
-    );
-  }
-  return <Image source={img.badge} style={{ width: size, height: size }} accessibilityLabel="Wombourne Allstars FC" />;
-}
-
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   markAll: { height: 40, paddingHorizontal: 14, justifyContent: 'center' },
@@ -124,13 +104,4 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', gap: 8, alignItems: 'baseline' },
   readRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
   divider: { borderBottomWidth: 1, borderBottomColor: colors.line },
-  iconBox: {
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
 });

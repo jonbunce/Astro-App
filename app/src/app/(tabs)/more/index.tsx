@@ -90,6 +90,7 @@ export default function More() {
             <Row key={p.url} label={p.title} onPress={() => openPage(p.url, p.title)} chevron />
           ))}
           <Row label="Notifications" value="Push + email" onPress={() => openSignedIn('/account-portal/')} />
+          <Row label="Signed-in devices" onPress={() => router.push('/more/devices')} chevron />
           <Row label="Sign out" bold onPress={confirmSignOut} />
           <Row label="Delete my account" danger last onPress={() => router.push('/delete-account')} />
         </Glass>

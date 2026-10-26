@@ -82,6 +82,8 @@ export interface InboxItem {
   body: string;
   from?: string;
   image?: string | null;
+  /** Team news: the article on the website. */
+  url?: string;
   createdAt: string;
   read: boolean;
 }
@@ -107,7 +109,10 @@ export interface InfoLink {
 }
 
 export interface AppConfig {
+  /** Older app versions must update before they can be used. */
   minVersion: string;
+  /** Store listings for the update prompt; null until the app is listed. */
+  storeUrls?: { ios: string | null; android: string | null };
   clubPages: InfoLink[];
   helpPages: InfoLink[];
 }
