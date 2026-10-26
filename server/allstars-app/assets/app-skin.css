@@ -1,0 +1,159 @@
+/*
+ * Allstars App skin for ASTRO pages opened from the app (portal, payments, rejoin, registration).
+ * Loaded only when body.wa-app is set: a signed-in page in the app's own browser session
+ * (cookie wa_app=1 from the handoff). Ordinary website visitors never get this file.
+ * Matches the app: carbon background, glass panels, red primary actions, gold accents,
+ * Archivo condensed italic headings.
+ */
+
+body.wa-app {
+	/* ASTRO's own design tokens, switched to the app's dark palette */
+	--was-bg: #0b0c0f;
+	--was-card-bg: rgba(255, 255, 255, 0.06);
+	--was-text: #ffffff;
+	--was-text-muted: rgba(255, 255, 255, 0.72);
+	--was-border: rgba(255, 255, 255, 0.14);
+	--was-on-dark-line: rgba(255, 255, 255, 0.14);
+	--was-ok-ink: #7fdcaa;      --was-ok-bg: rgba(31, 138, 84, 0.22);
+	--was-err-ink: #ff8f86;     --was-err-bg: rgba(200, 16, 46, 0.22);
+	--was-amber-ink: #f4b63f;   --was-amber-bg: rgba(227, 154, 0, 0.18);
+	--was-info-ink: #a9c8ff;    --was-info-bg: rgba(60, 110, 200, 0.22);
+	--was-neutral-ink: rgba(255, 255, 255, 0.78); --was-neutral-bg: rgba(255, 255, 255, 0.08);
+	--was-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+	--was-shadow-sm: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+	--was-shadow-md: 0 12px 30px rgba(0, 0, 0, 0.35);
+	--was-shadow-lift: 0 16px 36px rgba(0, 0, 0, 0.45);
+	--was-radius: 18px;
+	--was-radius-md: 16px;
+	--was-radius-lg: 22px;
+	--wa-glass: rgba(255, 255, 255, 0.06);
+	--wa-glass-line: rgba(255, 255, 255, 0.13);
+	--wa-glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+	--wa-display: 'Archivo', 'Segoe UI', system-ui, sans-serif;
+	--wa-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+	background: #0b0c0f !important;
+	background-image:
+		radial-gradient(520px 520px at -10% -6%, rgba(200, 16, 46, 0.42), rgba(200, 16, 46, 0) 70%),
+		radial-gradient(460px 460px at 115% 55%, rgba(227, 154, 0, 0.16), rgba(227, 154, 0, 0) 70%) !important;
+	background-attachment: fixed !important;
+	color: #fff;
+	font-family: var(--wa-body);
+}
+
+/* Flatsome page chrome: let the background show through */
+body.wa-app #wrapper,
+body.wa-app #main,
+body.wa-app .page-wrapper,
+body.wa-app .row-main,
+body.wa-app .col-inner,
+body.wa-app .entry-content {
+	background: transparent !important;
+	color: #fff;
+}
+body.wa-app .page-wrapper { padding-top: max(16px, env(safe-area-inset-top, 0px)); }
+body.wa-app .row-main > .col { padding-left: 14px; padding-right: 14px; }
+
+/* Type */
+body.wa-app :where(.was-portal-wrap, .was-wrap) :where(h1, h2, h3, h4, .was-heading, .was-section-heading, .was-portal-section__title) {
+	font-family: var(--wa-display);
+	font-stretch: 74%;
+	font-style: italic;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.01em;
+	color: #fff;
+}
+body.wa-app :where(.was-portal-wrap, .was-wrap) :where(p, li, label, span, td, th, small, strong, dt, dd) { color: inherit; }
+body.wa-app :where(.was-portal-wrap, .was-wrap) a:not(.was-btn):not(.was-portal-nav__tab) { color: #E39A00; }
+body.wa-app :where(.was-portal-wrap, .was-wrap) :where(.was-label-hint, .was-card-desc, .was-schedule-foot, .was-contact-note, .was-readonly-value, .description) {
+	color: rgba(255, 255, 255, 0.72);
+}
+
+/* Glass panels */
+body.wa-app :where(.was-player-card, .was-card, .was-info-box, .was-radio-card__inner, .was-contact-note, .was-notice) {
+	background: var(--wa-glass) !important;
+	border: 1px solid var(--wa-glass-line) !important;
+	border-radius: 22px !important;
+	box-shadow: var(--wa-glass-hi), 0 12px 30px rgba(0, 0, 0, 0.3) !important;
+	-webkit-backdrop-filter: blur(22px) saturate(160%);
+	backdrop-filter: blur(22px) saturate(160%);
+	color: #fff;
+}
+/* Form section titles (Player details, Medical…): a gold edge rather than a panel */
+body.wa-app .was-child-edit-section {
+	border-left: 3px solid #E39A00 !important;
+	padding: 0 0 0 10px !important;
+	margin: 18px 0 10px !important;
+	font-size: 18px !important;
+	background: none !important;
+}
+body.wa-app .was-player-card__payment { background: rgba(0, 0, 0, 0.25) !important; border-top: 1px solid rgba(255, 255, 255, 0.08) !important; }
+
+/* Header card and tabs */
+body.wa-app .was-portal-header {
+	background: rgba(20, 22, 26, 0.55) !important;
+	border: 1px solid var(--wa-glass-line);
+	border-radius: 24px;
+	box-shadow: var(--wa-glass-hi), 0 14px 34px rgba(0, 0, 0, 0.4);
+	-webkit-backdrop-filter: blur(24px) saturate(170%);
+	backdrop-filter: blur(24px) saturate(170%);
+}
+body.wa-app .was-portal-nav-wrap { background: transparent !important; }
+body.wa-app .was-portal-nav__tab {
+	background: rgba(255, 255, 255, 0.07) !important;
+	border: 1px solid rgba(255, 255, 255, 0.14) !important;
+	color: rgba(255, 255, 255, 0.82) !important;
+}
+body.wa-app .was-portal-nav__tab.was-active {
+	background: #C8102E !important;
+	border-color: #C8102E !important;
+	color: #fff !important;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 6px 16px rgba(200, 16, 46, 0.45);
+}
+
+/* Buttons */
+body.wa-app .was-btn { border-radius: 999px !important; font-family: var(--wa-body); font-weight: 700; }
+body.wa-app :where(.was-btn--primary, .was-btn-primary, button[type="submit"].was-btn) {
+	background: linear-gradient(180deg, #dc1637, #b30e29) !important;
+	border-color: transparent !important;
+	color: #fff !important;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 10px 24px rgba(200, 16, 46, 0.45) !important;
+}
+body.wa-app :where(.was-btn--ghost, .was-btn--secondary, .was-btn-secondary, .was-btn--outline) {
+	background: rgba(255, 255, 255, 0.08) !important;
+	border: 1px solid rgba(255, 255, 255, 0.18) !important;
+	color: #fff !important;
+	box-shadow: var(--wa-glass-hi) !important;
+}
+body.wa-app .was-iconbtn {
+	background: rgba(255, 255, 255, 0.08) !important;
+	border: 1px solid rgba(255, 255, 255, 0.16) !important;
+	color: #fff !important;
+}
+
+/* Forms */
+body.wa-app :where(.was-portal-wrap, .was-wrap) :where(input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="number"], input[type="password"], select, textarea, .was-input, .was-select) {
+	background: rgba(255, 255, 255, 0.07) !important;
+	border: 1px solid rgba(255, 255, 255, 0.2) !important;
+	border-radius: 14px !important;
+	color: #fff !important;
+	box-shadow: none !important;
+}
+body.wa-app :where(.was-portal-wrap, .was-wrap) select option { color: #14161a; }
+body.wa-app :where(.was-portal-wrap, .was-wrap) :where(input, select, textarea):focus {
+	border-color: #E39A00 !important;
+	outline: 2px solid rgba(227, 154, 0, 0.35) !important;
+	outline-offset: 1px;
+}
+body.wa-app :where(.was-portal-wrap, .was-wrap) ::placeholder { color: rgba(255, 255, 255, 0.5); }
+body.wa-app :where(.was-label, .was-yn-label, .was-checkbox-label) { color: #fff !important; }
+body.wa-app :where(.was-yn-choice, .was-radio-card, .was-consent-radio) { color: #fff; }
+
+/* Chips and alerts keep their meaning, in dark */
+body.wa-app .was-chip { border-color: rgba(255, 255, 255, 0.16); }
+body.wa-app .was-alert { border-radius: 16px !important; border-width: 1px !important; }
+
+/* Keep content clear of the "Back to the app" button */
+body.wa-app .was-portal-wrap,
+body.wa-app .was-wrap { padding-bottom: 24px; }

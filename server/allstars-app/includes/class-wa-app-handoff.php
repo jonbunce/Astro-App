@@ -25,8 +25,22 @@ class WA_App_Handoff {
 
         add_filter( 'body_class', array( __CLASS__, 'body_class' ) );
         add_filter( 'show_admin_bar', array( __CLASS__, 'hide_admin_bar' ), 100 );
+        add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_skin' ), 100 );
         add_action( 'wp_head', array( __CLASS__, 'print_styles' ), 100 );
         add_action( 'wp_footer', array( __CLASS__, 'print_button' ), 100 );
+    }
+
+    /**
+     * The app's look for ASTRO pages opened from the app (dark, glass, Archivo headings).
+     * Only in app view, so the website itself is untouched for everyone else. Runs after
+     * ASTRO's own stylesheets (priority 100) so its overrides win.
+     */
+    public static function enqueue_skin() {
+        if ( ! self::is_app_view() ) {
+            return;
+        }
+        wp_enqueue_style( 'wa-app-fonts', 'https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Inter:wght@400;500;600;700&display=swap', array(), null );
+        wp_enqueue_style( 'wa-app-skin', plugins_url( 'assets/app-skin.css', WA_APP_FILE ), array(), WA_APP_VERSION . '.' . filemtime( WA_APP_PATH . 'assets/app-skin.css' ) );
     }
 
     /** Pages the app may open signed in. */
