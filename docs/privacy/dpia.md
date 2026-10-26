@@ -53,7 +53,7 @@ communications, and reduce missed messages (push alongside email).
 
 ## 3. Consultation
 
-- Committee: review this document and the privacy notice section (`privacy-notice-app-section.md`).
+- Committee: review this document and the separate "Privacy notice: new section for the Allstars app".
 - Welfare/safeguarding officer: review the children's information shown and the notification text.
 - Members: told through the launch message and the updated privacy notice; testers' feedback during TestFlight.
 

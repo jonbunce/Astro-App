@@ -4,7 +4,7 @@ Add this section to the club's Privacy Notice page (`/privacy-policy/`), after "
 your personal data with". Then update the footer line to the new date and "Revision 2".
 
 The App Store and Google Play listings link to that page, so it must be live before the app
-is submitted. Wording checked against the code in this repo on 26 October 2026: if the app
+is submitted. Wording checked against the app's code on 26 October 2026: if the app
 starts storing or sharing anything new, this section needs updating first.
 
 ---
