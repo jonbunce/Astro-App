@@ -16,6 +16,8 @@ foreach ( array(
     'wa_app_mode',
     'wa_app_testers',
     'wa_app_min_version',
+    'wa_app_store_url_ios',
+    'wa_app_store_url_android',
     'wa_app_db_version',
     'wa_app_push_last_run',
     'wa_app_last_purge',

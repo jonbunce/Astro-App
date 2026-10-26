@@ -360,6 +360,9 @@ class WAS_Rest {
         if ( array_key_exists( 'image', $data ) ) {
             $item['image'] = ! empty( $data['image'] ) ? (string) $data['image'] : null;
         }
+        if ( ! empty( $data['url'] ) && is_string( $data['url'] ) ) {
+            $item['url'] = esc_url_raw( $data['url'] );   // team news: the article on the website
+        }
         return $item;
     }
 

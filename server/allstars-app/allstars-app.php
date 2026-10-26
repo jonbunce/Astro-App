@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Allstars App
  * Description:       Server side of the Wombourne Allstars app: app sign-in, opening website pages signed in, push notifications and read-only club content (REST namespace wa/v1). Does nothing for the public until Settings → Allstars App is switched from Off.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Wombourne Allstars FC
@@ -15,7 +15,7 @@ if ( defined( 'WA_APP_VERSION' ) ) {
     return; // a second copy is already loaded
 }
 
-define( 'WA_APP_VERSION', '1.0.0' );
+define( 'WA_APP_VERSION', '1.1.0' );
 define( 'WA_APP_DB_VERSION', '1.0.0' );
 define( 'WA_APP_FILE', __FILE__ );
 define( 'WA_APP_PATH', plugin_dir_path( __FILE__ ) );

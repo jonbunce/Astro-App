@@ -1,5 +1,12 @@
 # ASTRO changelog
 
+## 2.30.1 — app inbox: whole messages
+
+Nothing changes on the website or in emails.
+
+- **Club messages are kept in full in the app inbox**, so a member can open one and read all of it. Until now only the first 600 characters were stored.
+- **Team news in the inbox links to the article**, so the app can open the post itself.
+
 ## 2.30.0 — groundwork for the Allstars app
 
 Nothing changes on the website. This release adds the parts of ASTRO that the new Allstars app will use. They stay switched off until the app is opened (that is controlled by the separate Allstars app plugin), and even then only work for the accounts the app lets in.

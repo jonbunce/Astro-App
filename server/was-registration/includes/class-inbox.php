@@ -16,6 +16,7 @@ class WAS_Inbox {
 
     const TYPES     = array( 'club_message', 'team_news', 'payment', 'welcome' );
     const PAGE_SIZE = 50;
+    const BODY_MAX  = 20000; // characters of a club message kept in the inbox
 
     /** Club roles an admin gives out. An account holding one is trusted with its own email address. */
     const STAFF_ROLES = array( 'coach', 'committee', 'treasurer', 'social_media', 'registration_officer' );
@@ -193,8 +194,9 @@ class WAS_Inbox {
             $user_ids = array_values( $user_ids );
             if ( ! $user_ids ) return array();
 
+            // The whole message: the app shows it in full when it's opened (the list clips it).
             $title = trim( (string) $subject );
-            $text  = self::excerpt( $body, 600 );
+            $text  = self::excerpt( $body, self::BODY_MAX );
             foreach ( $user_ids as $uid ) {
                 self::add( $uid, 'club_message', $title, $text, array( 'from' => (string) $from ), (int) $message_id );
             }

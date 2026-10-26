@@ -99,8 +99,11 @@ interface Fixture { team: string; opponent: string; homeAway: 'H' | 'A'; kickoff
 interface NewsItem { id: number; title: string; date: string; kind: 'club' | 'team' | 'adults';
   category?: string; team?: string; image?: string | null; url: string; featured?: boolean }
 interface InboxItem { id: number; type: 'club_message' | 'team_news' | 'payment' | 'welcome';
-  title: string; body: string; from?: string; image?: string | null; createdAt: string; read: boolean }
-interface AppConfig { minVersion: string; clubPages: InfoLink[]; helpPages: InfoLink[] }
+  title: string; body: string;            // body = the whole club message (up to 20,000 characters)
+  from?: string; image?: string | null; url?: string /* team news: the article */; createdAt: string; read: boolean }
+interface AppConfig { minVersion: string;  // older app versions show "Time to update" and nothing else
+  storeUrls: { ios: string | null; android: string | null };  // Settings → Allstars App; null until listed
+  clubPages: InfoLink[]; helpPages: InfoLink[] }
 interface InfoLink { title: string; url: string; image?: string | null }
 ```
 

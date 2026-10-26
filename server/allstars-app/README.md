@@ -23,7 +23,7 @@ What it does:
   sends batches of 100 to Expo, retries a failed send up to 3 times, checks receipts and switches off
   phones Expo reports as `DeviceNotRegistered`. Queue rows are kept for 30 days. Other code can queue
   a push with `wa_queue_push( $user_ids, $title, $body, $data )`.
-- **Club content.** `GET /wa/v1/config` (minimum app version, info pages), `/content/news`
+- **Club content.** `GET /wa/v1/config` (minimum app version, store links, info pages), `/content/news`
   (`?filter=all|mine|club|adults&page=1`) and `/content/home` (each adult team's next game from the
   Allstars Adult Teams data, plus the two newest news items).
 - **ASTRO gate.** It adds the `was_rest_user_allowed` filter, so ASTRO's `was/v1` API only answers

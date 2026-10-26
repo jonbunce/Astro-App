@@ -1,7 +1,7 @@
 <?php
 /**
- * Settings → Allstars App: the app switch, tester emails, minimum app version, status, and
- * "sign everyone out of the app".
+ * Settings → Allstars App: the app switch, tester emails, minimum app version and store links,
+ * status, and "sign everyone out of the app".
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -79,12 +79,24 @@ class WA_App_Admin {
             $bad_ver = 1;
         }
 
+        $bad_url = 0;
+        foreach ( WA_App_Content::STORE_HOSTS as $platform => $host ) {
+            $key = 'wa_app_store_url_' . $platform;
+            $url   = isset( $_POST[ $key ] ) && is_string( $_POST[ $key ] ) ? trim( wp_unslash( $_POST[ $key ] ) ) : '';
+            $clean = '' === $url ? '' : WA_App_Content::clean_store_url( $url, $platform );
+            if ( null === $clean ) {
+                $bad_url++;
+            } else {
+                update_option( $key, $clean );
+            }
+        }
+
         update_option( 'wa_app_mode', $mode );
         update_option( 'wa_app_testers', array_values( $emails ) );
         update_option( 'wa_app_min_version', $min );
         WA_App_Push::sync_schedule();
 
-        wp_safe_redirect( self::page_url( array( 'wa_notice' => 'saved', 'wa_bad' => $bad, 'wa_bad_ver' => $bad_ver ) ) );
+        wp_safe_redirect( self::page_url( array( 'wa_notice' => 'saved', 'wa_bad' => $bad, 'wa_bad_ver' => $bad_ver, 'wa_bad_url' => $bad_url ) ) );
         exit;
     }
 
@@ -149,6 +161,19 @@ class WA_App_Admin {
                         <td>
                             <input type="text" name="wa_app_min_version" id="wa_app_min_version" class="regular-text" value="<?php echo esc_attr( WA_App_Content::min_version() ); ?>">
                             <p class="description">Older versions of the app ask people to update, e.g. <code>1.0.0</code>.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="wa_app_store_url_ios">App Store link</label></th>
+                        <td>
+                            <input type="url" name="wa_app_store_url_ios" id="wa_app_store_url_ios" class="regular-text code" value="<?php echo esc_attr( (string) get_option( 'wa_app_store_url_ios', '' ) ); ?>" placeholder="https://apps.apple.com/gb/app/…">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="wa_app_store_url_android">Google Play link</label></th>
+                        <td>
+                            <input type="url" name="wa_app_store_url_android" id="wa_app_store_url_android" class="regular-text code" value="<?php echo esc_attr( (string) get_option( 'wa_app_store_url_android', '' ) ); ?>" placeholder="https://play.google.com/store/apps/details?id=…">
+                            <p class="description">Where the "Time to update" screen sends people. Leave blank until the app is listed; the screen then tells them to update from the store or TestFlight.</p>
                         </td>
                     </tr>
                 </table>
@@ -232,6 +257,9 @@ class WA_App_Admin {
             }
             if ( ! empty( $_GET['wa_bad_ver'] ) ) {
                 echo '<div class="notice notice-warning"><p>The minimum app version must look like 1.0.0, so it was not changed.</p></div>';
+            }
+            if ( ! empty( $_GET['wa_bad_url'] ) ) {
+                echo '<div class="notice notice-warning"><p>Store links must be https://apps.apple.com/… or https://play.google.com/… addresses, so any other link was left as it was.</p></div>';
             }
         } elseif ( 'revoked' === $notice ) {
             $count = isset( $_GET['wa_count'] ) ? absint( $_GET['wa_count'] ) : 0;

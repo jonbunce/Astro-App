@@ -61,11 +61,38 @@ class WA_App_Content {
 
         $config = array(
             'minVersion' => self::min_version(),
+            'storeUrls'  => self::store_urls(),
             'clubPages'  => $pages['club'],
             'helpPages'  => $pages['help'],
         );
-        /** Change the app's config (minVersion, clubPages, helpPages). */
+        /** Change the app's config (minVersion, storeUrls, clubPages, helpPages). */
         return rest_ensure_response( apply_filters( 'wa_app_config', $config ) );
+    }
+
+    /** Store listing hosts, by platform. */
+    const STORE_HOSTS = array(
+        'ios'     => 'apps.apple.com',
+        'android' => 'play.google.com',
+    );
+
+    /** { ios, android }: each the store listing for the update prompt, or null if not set. */
+    public static function store_urls(): array {
+        $out = array();
+        foreach ( array_keys( self::STORE_HOSTS ) as $platform ) {
+            $out[ $platform ] = self::clean_store_url( (string) get_option( 'wa_app_store_url_' . $platform, '' ), $platform );
+        }
+        return $out;
+    }
+
+    /** An https link on that platform's store, or null. */
+    public static function clean_store_url( string $url, string $platform ): ?string {
+        $host = self::STORE_HOSTS[ $platform ] ?? '';
+        $url  = esc_url_raw( trim( $url ), array( 'https' ) );
+        if ( '' === $host || '' === $url ) {
+            return null;
+        }
+        $parts = wp_parse_url( $url );
+        return ( is_array( $parts ) && isset( $parts['host'] ) && strtolower( $parts['host'] ) === $host ) ? $url : null;
     }
 
     public static function min_version(): string {
