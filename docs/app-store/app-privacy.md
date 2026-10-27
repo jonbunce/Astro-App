@@ -43,8 +43,8 @@ Health type covers medical), Fitness, Credit Info, Contacts, Emails or Text Mess
 Gameplay Content, Customer Support, Browsing History, Search History, Purchases, Product
 Interaction, Advertising Data, Other Usage Data, Crash Data, Performance Data, Other Diagnostic Data.
 
-**Privacy Policy URL:** https://www.wombourneallstars.co.uk/privacy-policy/ (publish the app
-section from `docs/privacy/privacy-notice-app-section.md` first).
+**Privacy Policy URL:** https://www.wombourneallstars.co.uk/privacy-policy/ (publish Revision 2
+from `docs/privacy/privacy-notice.md` first; it includes the app section).
 
 **Tracking:** the app does not use the App Tracking Transparency prompt and must not; it does no
 tracking.

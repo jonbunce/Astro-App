@@ -28,9 +28,10 @@ foreach ( array(
 
 delete_transient( 'wa_app_home_fixtures' );
 delete_transient( 'wa_app_config_pages' );
+delete_transient( 'wa_app_config_pages_2' );
 
-// Sign-in throttle counters and unused website handoff links.
-foreach ( array( 'wa_login_fail_', 'wa_handoff_' ) as $wa_app_prefix ) {
+// Sign-in throttle counters, unused website handoff links and club pages as text.
+foreach ( array( 'wa_login_fail_', 'wa_handoff_', 'wa_app_page_' ) as $wa_app_prefix ) {
     foreach ( array( '_transient_', '_transient_timeout_' ) as $wa_app_kind ) {
         $wpdb->query( $wpdb->prepare(
             "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",

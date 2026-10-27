@@ -18,6 +18,18 @@ const HIDE_SITE_CHROME = `
   true;
 `;
 
+// The website runs Google Analytics (Site Kit's gtag). The app promises no analytics, so before
+// the page's scripts run, the Google tag's command queue is locked empty: the page's
+// gtag('config', …) can't be queued and gtag.js has nothing to send.
+const NO_ANALYTICS = `
+  (function () {
+    try {
+      Object.defineProperty(window, 'dataLayer', { value: Object.freeze([]), writable: false, configurable: false });
+    } catch (e) {}
+  })();
+  true;
+`;
+
 export default function WebPage() {
   const { url, title } = useLocalSearchParams<{ url: string; title?: string }>();
   const [loading, setLoading] = useState(true);
@@ -34,7 +46,7 @@ export default function WebPage() {
       <Stack.Screen options={{ title: title ?? '' }} />
       <WebView
         source={{ uri: url }}
-        injectedJavaScriptBeforeContentLoaded={HIDE_SITE_CHROME}
+        injectedJavaScriptBeforeContentLoaded={NO_ANALYTICS + HIDE_SITE_CHROME}
         injectedJavaScript={HIDE_SITE_CHROME}
         onShouldStartLoadWithRequest={allow}
         onLoadEnd={() => setLoading(false)}

@@ -11,7 +11,7 @@ import { Glass } from '@/components/Glass';
 import { Screen } from '@/components/Screen';
 import { Heading, Title, Txt } from '@/components/Txt';
 import { img, imageSource } from '@/images';
-import { openPage, openSignedIn } from '@/lib/website';
+import { openInfo, openSignedIn } from '@/lib/website';
 import { colors, fonts } from '@/theme';
 
 const roleNames: Record<string, string> = {
@@ -74,7 +74,7 @@ export default function More() {
             <PhotoTile key={p.url} page={p} />
           ))}
           {plainTiles.map((p) => (
-            <Pressable key={p.url} accessibilityRole="link" onPress={() => openPage(p.url, p.title)} style={styles.tileWrap}>
+            <Pressable key={p.url} accessibilityRole="link" onPress={() => openInfo(p)} style={styles.tileWrap}>
               <Glass radius={18} style={styles.tile}>
                 <Txt style={{ fontFamily: fonts.semibold, fontSize: 14 }}>{p.title}</Txt>
               </Glass>
@@ -87,7 +87,7 @@ export default function More() {
         <Heading style={{ fontSize: 20, marginHorizontal: 4 }}>Help & account</Heading>
         <Glass radius={22} style={{ paddingHorizontal: 16 }}>
           {(config.data?.helpPages ?? []).map((p) => (
-            <Row key={p.url} label={p.title} onPress={() => openPage(p.url, p.title)} chevron />
+            <Row key={p.url} label={p.title} onPress={() => openInfo(p)} chevron />
           ))}
           <Row label="Notifications" value="Push + email" onPress={() => openSignedIn('/account-portal/')} />
           <Row label="Signed-in devices" onPress={() => router.push('/more/devices')} chevron />
@@ -101,7 +101,7 @@ export default function More() {
 
 function PhotoTile({ page }: { page: InfoLink }) {
   return (
-    <Pressable accessibilityRole="link" onPress={() => openPage(page.url, page.title)} style={styles.tileWrap}>
+    <Pressable accessibilityRole="link" onPress={() => openInfo(page)} style={styles.tileWrap}>
       <View style={styles.photoTile}>
         <Image source={imageSource(page.image)} contentFit="cover" contentPosition={{ left: '50%', top: '75%' }} style={StyleSheet.absoluteFill} />
         <LinearGradient colors={['rgba(11,12,15,0.1)', 'rgba(11,12,15,0.8)']} style={StyleSheet.absoluteFill} />

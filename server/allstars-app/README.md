@@ -26,6 +26,13 @@ What it does:
 - **Club content.** `GET /wa/v1/config` (minimum app version, store links, info pages), `/content/news`
   (`?filter=all|mine|club|adults&page=1`) and `/content/home` (each adult team's next game from the
   Allstars Adult Teams data, plus the two newest news items).
+- **Club pages as text.** `GET /wa/v1/content/pages/{slug}` sends one of the More tab's pages
+  (privacy policy, safeguarding, our story and so on) as plain blocks the app shows in its own style:
+  headings, paragraphs, lists, tables, images, links, a document list and committee cards. The text
+  comes straight from the page, so editing it in WordPress changes the website and the app together
+  (each page is cached for an hour, and the copy is dropped as soon as the page is saved). Pages that
+  are mostly a form or a plugin (Contact us, the sponsors directory) are marked `native: false` in the
+  config and still open as web pages.
 - **ASTRO gate.** It adds the `was_rest_user_allowed` filter, so ASTRO's `was/v1` API only answers
   people this plugin lets in.
 - Every `wa/v1` and `was/v1` response is sent with `Cache-Control: no-store, private`, so

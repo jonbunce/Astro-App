@@ -2,8 +2,8 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
-import { mockConfig, mockFamily, mockHome, mockInbox, mockMe, mockNews, mockSessions } from './mock';
-import type { AppConfig, Child, HomeData, InboxItem, Me, NewsItem, Session } from './types';
+import { mockConfig, mockFamily, mockHome, mockInbox, mockMe, mockNews, mockPage, mockSessions } from './mock';
+import type { AppConfig, Child, HomeData, InboxItem, Me, NewsItem, PageContent, Session } from './types';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE?.replace(/\/$/, '');
 
@@ -79,6 +79,10 @@ export const api = {
   },
   async news(filter: 'all' | 'mine' | 'club' | 'adults'): Promise<NewsItem[]> {
     return isMock ? later(mockNews(filter)) : request(`/wa/v1/content/news?filter=${filter}`);
+  },
+  /** A club information page as text blocks. */
+  async page(slug: string): Promise<PageContent> {
+    return isMock ? later(mockPage(slug)) : request(`/wa/v1/content/pages/${encodeURIComponent(slug)}`);
   },
   async family(): Promise<Child[]> {
     return isMock ? later(mockFamily) : request('/was/v1/family');

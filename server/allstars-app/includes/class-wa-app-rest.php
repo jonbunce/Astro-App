@@ -82,6 +82,11 @@ class WA_App_REST {
             'callback'            => array( 'WA_App_Content', 'rest_news' ),
             'permission_callback' => array( __CLASS__, 'gate_content' ),
         ) );
+        register_rest_route( self::NS, '/content/pages/(?P<slug>[a-z0-9-]+)', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array( 'WA_App_Content', 'rest_page' ),
+            'permission_callback' => array( __CLASS__, 'gate_content' ),
+        ) );
     }
 
     // ── Gates ────────────────────────────────────────────────────────────────

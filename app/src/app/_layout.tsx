@@ -74,6 +74,7 @@ function RootStack({ fontsLoaded }: { fontsLoaded: boolean }) {
             headerBackButtonDisplayMode: 'minimal',
           }}
         />
+        <Stack.Screen name="page/[slug]" />
         <Stack.Screen name="delete-account" options={{ presentation: 'modal' }} />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>

@@ -22,7 +22,7 @@ notice section and DPIA).
 
 ## App Store
 
-- [ ] Privacy notice app section live on the website (`docs/privacy/privacy-notice-app-section.md`).
+- [ ] Privacy notice Revision 2 live on the website (`docs/privacy/privacy-notice.md`; `privacy-notice.wp.html` is the same text as WordPress blocks).
 - [ ] DPIA signed off by the committee (`docs/privacy/dpia.md`).
 - [ ] Demo account for Apple created on the website (see the build plan).
 - [ ] Committee letter scanned for the review attachment.

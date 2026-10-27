@@ -63,6 +63,7 @@ Dates are ISO 8601 strings with the site's UTC offset (`2026-10-24T16:05:00+01:0
 | `GET /config` | gate | — | `AppConfig` |
 | `GET /content/home` | gate | — | `{ fixtures: Fixture[], latest: NewsItem[] }` (`latest` = newest 2 items for the user's teams, else club news) |
 | `GET /content/news` | gate | `?filter=all\|mine\|club\|adults&page=1` | `NewsItem[]` (≤ 20) |
+| `GET /content/pages/{slug}` | gate | — | `PageContent`: one of the config's pages with `native: true`, as text blocks made from the page's rendered content (so it always matches the website). Cached for an hour and dropped when the page is saved. 404 for any other slug, or a page that isn't published or has a password. |
 
 ### `was/v1` (ASTRO)
 
@@ -104,7 +105,22 @@ interface InboxItem { id: number; type: 'club_message' | 'team_news' | 'payment'
 interface AppConfig { minVersion: string;  // older app versions show "Time to update" and nothing else
   storeUrls: { ios: string | null; android: string | null };  // Settings → Allstars App; null until listed
   clubPages: InfoLink[]; helpPages: InfoLink[] }
-interface InfoLink { title: string; url: string; image?: string | null }
+interface InfoLink { title: string; url: string; image?: string | null;
+  slug?: string; native?: boolean }      // native: shown as text from GET /content/pages/{slug}, else opened as a web page
+interface PageContent { slug: string; title: string; url: string; modified: string; blocks: PageBlock[] }
+interface PageRun { t: string; b?: true; i?: true; href?: string }   // href: absolute http(s), mailto: or tel:
+type PageBlock =                         // apps skip types they don't know, so new ones can be added
+  | { type: 'heading'; level: 2 | 3; text: string }   // h1/h2 → 2, h3–h6 → 3; a short all-bold paragraph → 3
+  | { type: 'kicker'; text: string }                 // a <p class="…kicker…"> label above a heading
+  | { type: 'paragraph'; content: PageRun[] }
+  | { type: 'list'; ordered: boolean; items: PageRun[][] }          // nested lists are flattened
+  | { type: 'table'; header: boolean; rows: PageRun[][][] }         // rows → cells → runs
+  | { type: 'image'; src: string; alt: string; ratio?: number }     // ratio = width / height
+  | { type: 'button'; label: string; href: string }                 // a paragraph or block that is just one link
+  | { type: 'documents'; items: { title: string; description: string; url: string }[] }  // a table whose rows end in file links
+  | { type: 'people'; items: { name: string; role: string; photo: string | null }[] }    // Flatsome boxes with .person-name
+  | { type: 'divider' }
+  | { type: 'form' }                     // a form was here: the app offers the web page instead
 ```
 
 The Home "needs attention" alert is worked out in the app from `GET /was/v1/family` (`arrears`), not sent by the server.

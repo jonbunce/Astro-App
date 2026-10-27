@@ -3,7 +3,8 @@
 
 import { SITE_URL } from '@/theme';
 
-import type { AppConfig, Child, HomeData, InboxItem, Me, NewsItem, Session } from './types';
+import mockPages from './mock-pages.json';
+import type { AppConfig, Child, HomeData, InboxItem, Me, NewsItem, PageContent, Session } from './types';
 
 export const mockMe: Me = {
   id: 1,
@@ -197,20 +198,31 @@ export const mockConfig: AppConfig = {
   minVersion: '1.0.0',
   storeUrls: { ios: null, android: null },
   clubPages: [
-    { title: 'Our story', url: `${SITE_URL}/our-story/`, image: 'pitch' },
-    { title: 'Walking football', url: `${SITE_URL}/walking-football/`, image: 'walking' },
-    { title: 'Meet the committee', url: `${SITE_URL}/meet-the-committee/` },
-    { title: 'Our sponsors', url: `${SITE_URL}/sponsors-directory/` },
-    { title: 'Girls & ladies', url: `${SITE_URL}/girls-ladies-football/` },
-    { title: 'Coach or volunteer', url: `${SITE_URL}/coaching-opportunities/` },
+    { title: 'Our story', url: `${SITE_URL}/our-story/`, image: 'pitch', slug: 'our-story', native: true },
+    { title: 'Walking football', url: `${SITE_URL}/walking-football/`, image: 'walking', slug: 'walking-football', native: true },
+    { title: 'Meet the committee', url: `${SITE_URL}/meet-the-committee/`, slug: 'meet-the-committee', native: true },
+    { title: 'Our sponsors', url: `${SITE_URL}/sponsors-directory/`, slug: 'sponsors-directory', native: false },
+    { title: 'Girls & ladies', url: `${SITE_URL}/girls-ladies-football/`, slug: 'girls-ladies-football', native: true },
+    { title: 'Coach or volunteer', url: `${SITE_URL}/coaching-opportunities/`, slug: 'coaching-opportunities', native: true },
   ],
   helpPages: [
-    { title: 'Safeguarding', url: `${SITE_URL}/safeguarding/` },
-    { title: 'Documents & policies', url: `${SITE_URL}/document-library/` },
-    { title: 'Contact the club', url: `${SITE_URL}/contact-us/` },
-    { title: 'Privacy policy', url: `${SITE_URL}/privacy-policy/` },
+    { title: 'Safeguarding', url: `${SITE_URL}/safeguarding/`, slug: 'safeguarding', native: true },
+    { title: 'Documents & policies', url: `${SITE_URL}/document-library/`, slug: 'document-library', native: true },
+    { title: 'Contact the club', url: `${SITE_URL}/contact-us/`, slug: 'contact-us', native: false },
+    { title: 'Privacy policy', url: `${SITE_URL}/privacy-policy/`, slug: 'privacy-policy', native: true },
   ],
 };
+
+/**
+ * Club pages as the website's /content/pages endpoint returned them on 27 Oct 2026
+ * (the privacy policy is the Revision 2 draft).
+ */
+export function mockPage(slug: string): PageContent {
+  // JSON imports type "type" as plain string, so the block union needs the cast.
+  const page = (mockPages as unknown as Record<string, PageContent>)[slug];
+  if (!page) throw new Error("That page isn't in the sample data.");
+  return page;
+}
 
 export const mockSessions: Session[] = [
   { id: 2, device: 'iPhone 16 Pro', platform: 'ios', createdAt: '2026-10-20T19:12:00', lastUsedAt: '2026-10-26T08:40:00', current: true },

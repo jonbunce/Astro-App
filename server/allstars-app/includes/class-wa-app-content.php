@@ -1,10 +1,13 @@
 <?php
 /**
- * Read-only club content for the app: GET /config, /content/news and /content/home.
+ * Read-only club content for the app: GET /config, /content/news, /content/home and
+ * /content/pages/{slug}.
  *
  * News is ordinary WordPress posts. A post with meta _was_news_team_id is team news (ASTRO);
  * a post in the "Adults Team News" category is adults news; everything else is club news.
  * Home fixtures come from the allstars-adult-teams plugin's cached Full-Time data (option aat_data).
+ * Club information pages are sent as text blocks (WA_App_Page_Text) straight from the page
+ * itself, so editing a page in WordPress changes the website and the app together.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -13,7 +16,9 @@ class WA_App_Content {
 
     const PER_PAGE           = 20;
     const FIXTURES_TRANSIENT = 'wa_app_home_fixtures';
-    const PAGES_TRANSIENT    = 'wa_app_config_pages';
+    const PAGES_TRANSIENT    = 'wa_app_config_pages_2';
+    /** + page slug. The number changes when the block format does, so old copies are never served. */
+    const PAGE_TRANSIENT     = 'wa_app_page_1_';
     const META_TEAM_ID       = '_was_news_team_id';
     const META_TEAM_SLUG     = '_was_news_team_slug';
 
@@ -31,8 +36,49 @@ class WA_App_Content {
         delete_transient( self::FIXTURES_TRANSIENT );
     }
 
-    public static function flush_pages() {
+    public static function flush_pages( $post_id = 0 ) {
         delete_transient( self::PAGES_TRANSIENT );
+        $slug = $post_id ? get_post_field( 'post_name', (int) $post_id ) : '';
+        if ( is_string( $slug ) && '' !== $slug ) {
+            delete_transient( self::PAGE_TRANSIENT . $slug );
+        }
+    }
+
+    /**
+     * The More tab's club pages: [ title, path, shown as text in the app ].
+     * Pages that are mostly a form or a plugin the API can't render stay on the website.
+     */
+    private static function page_defs(): array {
+        return array(
+            'club' => array(
+                array( 'Our story', '/our-story/', true ),
+                array( 'Walking football', '/walking-football/', true ),
+                array( 'Meet the committee', '/meet-the-committee/', true ),
+                array( 'Our sponsors', '/sponsors-directory/', false ),
+                array( 'Girls & ladies', '/girls-ladies-football/', true ),
+                array( 'Coach or volunteer', '/coaching-opportunities/', true ),
+            ),
+            'help' => array(
+                array( 'Safeguarding', '/safeguarding/', true ),
+                array( 'Documents & policies', '/document-library/', true ),
+                array( 'Contact the club', '/contact-us/', false ),
+                array( 'Privacy policy', '/privacy-policy/', true ),
+            ),
+        );
+    }
+
+    /** Slugs the app may fetch as text. */
+    public static function text_page_slugs(): array {
+        $slugs = array();
+        foreach ( self::page_defs() as $defs ) {
+            foreach ( $defs as $def ) {
+                if ( $def[2] ) {
+                    $slugs[] = trim( $def[1], '/' );
+                }
+            }
+        }
+        /** Change which page slugs the app can show as text (GET /content/pages/{slug}). */
+        return array_values( array_filter( (array) apply_filters( 'wa_app_text_pages', $slugs ), 'is_string' ) );
     }
 
     // ── GET /config ──────────────────────────────────────────────────────────
@@ -40,21 +86,10 @@ class WA_App_Content {
     public static function rest_config( WP_REST_Request $request ) {
         $pages = get_transient( self::PAGES_TRANSIENT );
         if ( ! is_array( $pages ) || ! isset( $pages['club'], $pages['help'] ) ) {
+            $defs  = self::page_defs();
             $pages = array(
-                'club' => self::links( array(
-                    array( 'Our story', '/our-story/' ),
-                    array( 'Walking football', '/walking-football/' ),
-                    array( 'Meet the committee', '/meet-the-committee/' ),
-                    array( 'Our sponsors', '/sponsors-directory/' ),
-                    array( 'Girls & ladies', '/girls-ladies-football/' ),
-                    array( 'Coach or volunteer', '/coaching-opportunities/' ),
-                ) ),
-                'help' => self::links( array(
-                    array( 'Safeguarding', '/safeguarding/' ),
-                    array( 'Documents & policies', '/document-library/' ),
-                    array( 'Contact the club', '/contact-us/' ),
-                    array( 'Privacy policy', '/privacy-policy/' ),
-                ) ),
+                'club' => self::links( $defs['club'] ),
+                'help' => self::links( $defs['help'] ),
             );
             set_transient( self::PAGES_TRANSIENT, $pages, HOUR_IN_SECONDS );
         }
@@ -100,25 +135,68 @@ class WA_App_Content {
         return ( is_string( $version ) && preg_match( '/^\d+(\.\d+){0,3}$/', $version ) ) ? $version : '1.0.0';
     }
 
-    /** [ title, path ] pairs → InfoLink[] with the page's featured image when it has one. */
+    /** page_defs() rows → InfoLink[] with the page's featured image when it has one. */
     private static function links( array $defs ): array {
-        $out = array();
+        $text  = self::text_page_slugs();
+        $out   = array();
         foreach ( $defs as $def ) {
             $title = (string) $def[0];
             $path  = (string) $def[1];
+            $slug  = trim( $path, '/' );
             $image = null;
-            $page  = get_page_by_path( trim( $path, '/' ) );
+            $page  = get_page_by_path( $slug );
             if ( $page instanceof WP_Post ) {
                 $url   = get_the_post_thumbnail_url( $page, 'medium_large' );
                 $image = $url ? $url : null;
             }
             $out[] = array(
-                'title' => $title,
-                'url'   => home_url( $path ),
-                'image' => $image,
+                'title'  => $title,
+                'url'    => home_url( $path ),
+                'image'  => $image,
+                'slug'   => $slug,
+                'native' => in_array( $slug, $text, true ),
             );
         }
         return $out;
+    }
+
+    // ── GET /content/pages/{slug} ────────────────────────────────────────────
+
+    /** A club page as text blocks (cached for an hour, and dropped as soon as the page is saved). */
+    public static function rest_page( WP_REST_Request $request ) {
+        $slug = (string) $request->get_param( 'slug' );
+        if ( ! in_array( $slug, self::text_page_slugs(), true ) ) {
+            return wa_app_error( 'wa_page_not_found', "That page isn't available in the app.", 404 );
+        }
+        $cached = get_transient( self::PAGE_TRANSIENT . $slug );
+        if ( is_array( $cached ) ) {
+            return rest_ensure_response( $cached );
+        }
+        $post = get_page_by_path( $slug );
+        if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status || '' !== $post->post_password ) {
+            return wa_app_error( 'wa_page_not_found', "That page isn't available in the app.", 404 );
+        }
+        $page = self::page_text( $post );
+        set_transient( self::PAGE_TRANSIENT . $slug, $page, HOUR_IN_SECONDS );
+        return rest_ensure_response( $page );
+    }
+
+    private static function page_text( WP_Post $post ): array {
+        // Render the page exactly as the website does (shortcodes, blocks, the theme's builder).
+        $GLOBALS['post'] = $post;
+        setup_postdata( $post );
+        $html = (string) apply_filters( 'the_content', $post->post_content );
+        wp_reset_postdata();
+
+        $title    = self::plain( get_the_title( $post ) );
+        $modified = get_post_datetime( $post, 'modified' );
+        return array(
+            'slug'     => $post->post_name,
+            'title'    => $title,
+            'url'      => (string) get_permalink( $post ),
+            'modified' => $modified ? $modified->format( 'c' ) : '',
+            'blocks'   => WA_App_Page_Text::blocks( $html, home_url( '/' ), $title ),
+        );
     }
 
     // ── GET /content/news ────────────────────────────────────────────────────

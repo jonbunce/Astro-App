@@ -13,6 +13,9 @@ export const useSessions = () => useQuery({ queryKey: ['sessions'], queryFn: api
 export const useNews = (filter: 'all' | 'mine' | 'club' | 'adults') =>
   useQuery({ queryKey: ['news', filter], queryFn: () => api.news(filter) });
 
+export const usePage = (slug: string) =>
+  useQuery({ queryKey: ['page', slug], queryFn: () => api.page(slug), staleTime: 10 * 60_000 });
+
 export function useChild(id: number) {
   const family = useFamily();
   return { ...family, data: family.data?.find((c) => c.id === id) };

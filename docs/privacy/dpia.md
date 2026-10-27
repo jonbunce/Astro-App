@@ -53,7 +53,7 @@ communications, and reduce missed messages (push alongside email).
 
 ## 3. Consultation
 
-- Committee: review this document and the separate "Privacy notice: new section for the Allstars app".
+- Committee: review this document and the club's updated privacy notice (Revision 2), which now covers the app.
 - Welfare/safeguarding officer: review the children's information shown and the notification text.
 - Members: told through the launch message and the updated privacy notice; testers' feedback during TestFlight.
 
@@ -100,7 +100,7 @@ Likelihood: remote / possible / probable. Severity: minimal / significant / seve
    member returns to the app, or open them in an in-app web view with its own cookies.
 3. **Continuity:** record in committee minutes that the app is published by Jon Bunce on the
    Club's behalf, with a plan to transfer it if the Club incorporates or Jon steps down.
-4. **Privacy notice:** publish the new app section (and Revision 2 date) before the App Store
+4. **Privacy notice:** publish Revision 2, which covers the app, before the App Store
    submission.
 5. **Review** this DPIA before Release 2, which adds coaches' squad views (more children's data
    per account, including emergency contacts).

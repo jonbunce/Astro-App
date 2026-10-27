@@ -28,6 +28,14 @@ class WA_App_Handoff {
         add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_skin' ), 100 );
         add_action( 'wp_head', array( __CLASS__, 'print_styles' ), 100 );
         add_action( 'wp_footer', array( __CLASS__, 'print_button' ), 100 );
+        add_action( 'wp_print_scripts', array( __CLASS__, 'no_analytics' ), 100 );
+    }
+
+    /** The app promises no analytics, so pages opened from it leave out Site Kit's Google tag. */
+    public static function no_analytics() {
+        if ( self::is_app_view() ) {
+            wp_dequeue_script( 'google_gtagjs' );
+        }
     }
 
     /**

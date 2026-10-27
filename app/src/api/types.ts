@@ -106,6 +106,44 @@ export interface InfoLink {
   title: string;
   url: string;
   image?: string | null;
+  /** The page's slug on the website. */
+  slug?: string;
+  /** Shown as text in the app (GET /wa/v1/content/pages/{slug}); otherwise it opens as a web page. */
+  native?: boolean;
+}
+
+/** A stretch of text with its marks; href is an http(s), mailto or tel link. */
+export interface PageRun {
+  t: string;
+  b?: boolean;
+  i?: boolean;
+  href?: string;
+}
+
+/** One piece of a club page. The app skips block types it doesn't know. */
+export type PageBlock =
+  | { type: 'heading'; level: 2 | 3; text: string }
+  /** The small label a designed page puts above a heading. */
+  | { type: 'kicker'; text: string }
+  | { type: 'paragraph'; content: PageRun[] }
+  | { type: 'list'; ordered: boolean; items: PageRun[][] }
+  /** rows → cells → runs; with header, the first row labels the columns. */
+  | { type: 'table'; header: boolean; rows: PageRun[][][] }
+  | { type: 'image'; src: string; alt: string; ratio?: number }
+  | { type: 'button'; label: string; href: string }
+  | { type: 'documents'; items: { title: string; description: string; url: string }[] }
+  | { type: 'people'; items: { name: string; role: string; photo: string | null }[] }
+  | { type: 'divider' }
+  /** Where the page has a form: the app offers the website instead. */
+  | { type: 'form' };
+
+/** A club information page as text, straight from the website page. */
+export interface PageContent {
+  slug: string;
+  title: string;
+  url: string;
+  modified: string;
+  blocks: PageBlock[];
 }
 
 export interface AppConfig {
