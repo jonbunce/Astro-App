@@ -64,7 +64,7 @@ def to_blocks(blocks):
 
 def main():
     src, dest = Path(sys.argv[1]), Path(sys.argv[2])
-    dest.write_text(to_blocks(docs_to_pdf.parse(src.read_text(encoding='utf-8'))), encoding='utf-8')
+    dest.write_text(to_blocks(docs_to_pdf.parse(src.read_text(encoding='utf-8'))), encoding='utf-8', newline='\n')
     print('Wrote', dest)
 
 

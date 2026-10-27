@@ -101,7 +101,7 @@ Likelihood: remote / possible / probable. Severity: minimal / significant / seve
 3. **Continuity:** record in committee minutes that the app is published by Jon Bunce on the
    Club's behalf, with a plan to transfer it if the Club incorporates or Jon steps down.
 4. **Privacy notice:** publish Revision 2, which covers the app, before the App Store
-   submission.
+   submission. Done: published on the website on 27 October 2026.
 5. **Review** this DPIA before Release 2, which adds coaches' squad views (more children's data
    per account, including emergency contacts).
 
